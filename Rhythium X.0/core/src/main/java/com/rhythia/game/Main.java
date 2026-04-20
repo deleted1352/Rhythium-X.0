@@ -7,6 +7,9 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.rhythia.game.screens.MenuScreen;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+
 
 public class Main extends Game {
     public SpriteBatch batch;
@@ -29,6 +32,25 @@ public class Main extends Game {
     public void create() {
         batch = new SpriteBatch();
         font = new BitmapFont();
+        FreeTypeFontGenerator generator =
+            new FreeTypeFontGenerator(Gdx.files.internal("fonts/abel-regular.ttf"));
+        FreeTypeFontGenerator.FreeTypeFontParameter params =
+            new FreeTypeFontGenerator.FreeTypeFontParameter();
+
+        params.size = 96;              // ← change this number to adjust size
+        params.color = Color.WHITE;    // text color
+        params.borderWidth = 3f;
+        params.borderColor = Color.WHITE;
+
+        params.minFilter = Texture.TextureFilter.Linear;
+        params.magFilter = Texture.TextureFilter.Linear;
+        params.gamma = 1.8f;
+        params.borderGamma = 1.8f;
+
+
+        font = generator.generateFont(params);
+        generator.dispose();
+        
         this.setScreen(new MenuScreen(this));
     }
 

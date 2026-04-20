@@ -26,10 +26,10 @@ public class MenuScreen extends ScreenAdapter {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         game.batch.begin();
-        game.font.getData().setScale(4);
+        game.font.getData().setScale(1);
         game.font.draw(game.batch, "1. NEVADA - VICETONE", 100, Gdx.graphics.getHeight() - 100);
 
-        game.font.getData().setScale(2);
+        game.font.getData().setScale(0.5f);
         game.font.draw(game.batch, "Tap song title to play", 100, 200);
         game.batch.end();
 

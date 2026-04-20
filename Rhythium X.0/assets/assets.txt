@@ -1,3 +1,4 @@
+Fonts/abel-regular.ttf
 background.png
 hit.mp3
 libgdx.png
