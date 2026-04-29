@@ -6,9 +6,13 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.rhythia.game.screens.MenuScreen;
+
+//import javafx.application.Platform;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.rhythia.game.screens.MenuScreen;
+import com.rhythia.game.screens.UploadScreen;
 
 
 public class Main extends Game {
@@ -30,6 +34,7 @@ public class Main extends Game {
 //        this.setScreen(new MenuScreen(this));
 //    }
     public void create() {
+        //Platform.startup(() -> {}); 
         batch = new SpriteBatch();
         font = new BitmapFont();
         FreeTypeFontGenerator generator =
@@ -51,7 +56,9 @@ public class Main extends Game {
         font = generator.generateFont(params);
         generator.dispose();
         
-        this.setScreen(new MenuScreen(this));
+
+        this.setScreen(new UploadScreen(this));
+        //this.setScreen(new MenuScreen(this));
     }
 
     @Override
@@ -64,5 +71,6 @@ public class Main extends Game {
         batch.dispose();
         font.dispose();
         solidBackground.dispose();
+        Gdx.app.exit();
     }
 }

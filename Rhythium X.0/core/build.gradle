@@ -10,6 +10,18 @@ dependencies {
   }
 }
 
+plugins {
+    id "ru.vyarus.use-python" version "4.0.0"
+}
+
+python {
+    
+  
+  pip 'pandas:1.2.0'
+  pip 'numpy:2.4.4'
+  pip 'librosa:0.8.1'
+}
+
 jar {
   duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
