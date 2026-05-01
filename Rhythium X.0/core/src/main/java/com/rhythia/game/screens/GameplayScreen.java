@@ -33,8 +33,12 @@ public class GameplayScreen extends ScreenAdapter {
     private final float FADE_IN_DURATION = 0.5f;
     private final float PUSHBACK = 0.94f;
     private final float SPAWN_SCALE = 0.10f;
-    private final float HIT_WINDOW = 0.12f; // original: 0.12f
+    private final float HIT_WINDOW = 0.06f; // original: 0.12f
 
+    /**
+     * Constructs a GameplayScreen
+     * @param game - initializes game
+     */
     public GameplayScreen(Main game) {
         this.game = game;
         this.shapeRenderer = new ShapeRenderer();
@@ -45,8 +49,8 @@ public class GameplayScreen extends ScreenAdapter {
         Gdx.input.setInputProcessor(null);
         Gdx.input.setCursorCatched(false);
 
-        Gdx.gl.glEnable(GL20.GL_BLEND);
-        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+        // Gdx.gl.glEnable(GL20.GL_BLEND);
+        // Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 
         gridX = (Gdx.graphics.getWidth() - gridSize) / 2;
         gridY = (Gdx.graphics.getHeight() - gridSize) / 2;
@@ -72,11 +76,25 @@ public class GameplayScreen extends ScreenAdapter {
         hitSound = Gdx.audio.newSound(Gdx.files.internal("hit.mp3"));
     }
 
+    /**
+     * Shows the game animation
+     * 1. Clears screen
+     * 2. Enables note transparency
+     * 3. Handles escape
+     * 4. Gets songTimer
+     * 5. Draws grid
+     * 6. Draws notes
+     * 7. Displays statistics
+     */
     @Override
     public void render(float delta) {
         // clear screen
         Gdx.gl.glClearColor(0.01f, 0.01f, 0.01f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+        // enables middle of notes to be transparent
+        // Gdx.gl.glEnable(GL20.GL_BLEND);
+        // Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 
         // handle escape
         if (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.ESCAPE)) {
@@ -95,18 +113,20 @@ public class GameplayScreen extends ScreenAdapter {
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
         shapeRenderer.setColor(1, 1, 1, 1);
         drawThickRect(gridX, gridY, gridSize, gridSize, 3);
+        // shapeRenderer.end();
 
-        shapeRenderer.end();
-
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        // shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 
         // update, process, draw notes
-        int missedNotes = 0, i = 0, streak = 0; // notes not hit yet
-        boolean s = true;
-        double HP = 6;
+        int missedNotes = 0, i = 0; // notes not hit yet
+
+        // rendering the cubes, message "PERFECT!" or "MISS"
         for (int j = allNotes.size - 1; j >= 0; j--) {
+            // Note: forwardN runs a forward loop to calculate HP, n renders the cubes to maintain layering
             Note n = allNotes.get(j);
             float timeUntilHit = n.hitTime - songTimer;
+
+            // while (n1 < allNotes.size && allNotes.get(n1).hitTime - songTimer <= HIT_WINDOW) 
 
             if (Math.abs(timeUntilHit) <= HIT_WINDOW) {
                 n.isHittable = true;
@@ -117,12 +137,11 @@ public class GameplayScreen extends ScreenAdapter {
             if (timeUntilHit < -HIT_WINDOW && !n.hit) {
                 n.passed = true;
                 missedNotes++;
-                HP--;
-                s = false;
+                displayJudgement("MISS", songTimer - n.hitTime);
             }
             else if (timeUntilHit < -HIT_WINDOW && n.hit) {
-                if (HP < 6) HP += 0.5;
-                if (s) streak++;
+                n.passed = true;
+                displayJudgement(n.rating, songTimer - n.hitTime);
             }
 
             // shows all unpassed notes
@@ -132,7 +151,7 @@ public class GameplayScreen extends ScreenAdapter {
             if (!n.hit && !n.passed && timeUntilHit < APPROACH_TIME) {
                 float rawProg = 1.0f - (timeUntilHit / APPROACH_TIME);
                 // float alpha = Math.min((APPROACH_TIME - timeUntilHit) / FADE_IN_DURATION, 1.0f);
-                float easedProg = (float) Math.pow(rawProg * PUSHBACK, 3);
+                float easedProg = (float) Math.pow(rawProg * 1.005, 3); //original: rawProg * PUSHBACK
 
                 float startCX = spawnCells[n.cell].x + spawnCells[n.cell].width / 2;
                 float startCY = spawnCells[n.cell].y + spawnCells[n.cell].height / 2;
@@ -151,17 +170,43 @@ public class GameplayScreen extends ScreenAdapter {
                 shapeRenderer.setColor(c);
 
                 // mimicking 3D, the rectangle grows larger as it approaches approachtime
-                int thickness = (int) (curSize/2); //timeuntilhit is default < 1
-                drawThickRoundedRect(curX - curSize / 2, curY - curSize / 2, curSize, curSize, thickness);                
+                int thickness = (int) (curSize / 6); //timeuntilhit is default < 1
+                //
+                drawThickRect(curX - curSize / 2, curY - curSize / 2, curSize, curSize, thickness);                
             }
         }
         shapeRenderer.end();
+        // calculating the HP, streak, points
+        float HP = 6;
+        int points = 0, streak = 0;
+        for (int k = 0; k < allNotes.size; k++) {
+            Note n = allNotes.get(k);
+            // potential errors: n.hit --> not passed, final HP = 6, final n.hit = false
+            if (n.passed) {
+                // System.out.println(HP);
+                if (n.hit) {
+                    if (HP < 6) HP += 0.5;
+                    float judgement = 0.5f;
+                    if (n.rating.equalsIgnoreCase("PERFECT!")) judgement = 1.0f;
+                    else if (n.rating.equalsIgnoreCase("GREAT!")) judgement = 0.7f;
+                    points += 300 * judgement * (1 + streak * 0.1);
+                    streak++;
+                }
+                else if (!n.hit) {
+                    HP--;
+                    streak = 0;
+                }
+            }
+        }
         // if (HP <= 0) game.batch.end(); // CHANGE TO END SCREEN, THIS CLOSES WHOLE APP
-        displayStats(i, missedNotes, streak, HP);
+        displayStats(i, missedNotes, streak, HP, points);
         
     }
 
-    private void displayStats(int i, int missedNotes, int streak, double HP)
+    /**
+     * Displays statistics: Misses, HP, Notes, Accuracy, Streak, Time, Title
+     */
+    private void displayStats(int i, int missedNotes, int streak, double HP, int points)
     {
         // displayingHelper: Misses, HP, Notes, and Accuracy
         // Self-display: 9x, Title, Time
@@ -172,6 +217,7 @@ public class GameplayScreen extends ScreenAdapter {
         HP: mcenter - width/2, 560, hp: mcenter - width/2, 500
         Notes: mcenter - width/2, 390, n: 330
         */
+
         double current = allNotes.size - i;
         hit = current - missedNotes;
         String a = String.format("%.2f", hit / current * 100) + "%";
@@ -187,17 +233,21 @@ public class GameplayScreen extends ScreenAdapter {
 
         game.batch.begin();
 
-        float accC = displayStatsHelper("ACCURACY", a, 450, 520, layout);
+        game.font.getData().setScale(0.35f);
+        float accC = displayStatsHelper("ACCURACY", a, 450, 390, layout);
         float missC = displayStatsHelper("MISSES", missedNotes + "", 1320, 720, layout);
         layout.setText(game.font, "HP");
-        displayStatsHelper("HP", HP + "", missC - layout.width/2, 560, layout);
+        displayStatsHelper("HP", HP + "", missC - layout.width/2f, 560, layout);
         layout.setText(game.font, "NOTES");
-        displayStatsHelper("NOTES", notes, missC - layout.width/2, 390, layout);
-        displayStatsHelper("ViceTone - Nevada", time, 835, 940, layout);
+        displayStatsHelper("NOTES", notes, missC - layout.width/2f, 390, layout);
+        float xCenter = displayStatsHelper("ViceTone - Nevada", time, 835, 940, layout);
+        // System.out.println(xCenter);
+        layout.setText(game.font, "POINTS");
+        displayStatsHelper("POINTS", points + "", accC - layout.width/2f, 560, layout);
 
         game.font.getData().setScale(0.5f);
         layout.setText(game.font, streak + "x");
-        game.font.draw(game.batch, streak + "x", accC - layout.width/2, 710);
+        game.font.draw(game.batch, streak + "x", accC - layout.width/2f, 710);
         game.batch.end();
     }
 
@@ -212,7 +262,47 @@ public class GameplayScreen extends ScreenAdapter {
         game.font.getData().setScale(0.25f);
         layout.setText(game.font, stat);
         game.font.draw(game.batch, stat, center - layout.width/2f, y - 60f);
+        game.font.getData().setScale(0.35f);
         return center;
+    }
+
+    private void displayJudgement(String judgement, float timeSinceHit)
+    {
+        // NOTE: for setColor(), divide all r,g,b values by 255f for wanted result, or will result in white color
+        float alpha = 1 - timeSinceHit / 0.8f; // stuff disappears when alpha > 0.8f
+        if (alpha <= 0) return;
+        float yOffset = timeSinceHit * 20f;
+        float scale = 1 + timeSinceHit * 0.1f;
+        game.batch.begin();
+        switch (judgement) { //decided attributes for each case
+            case "PERFECT!":
+                game.font.setColor(255/255f, 245/255f, 160/255f, alpha); // 255, 245, 160
+                game.font.getData().setScale(0.44f);
+                yOffset = 90;
+                break;
+            case "GREAT!":
+                game.font.setColor(120/255f, 220/255f, 255/255f, alpha); // 120, 220, 255
+                game.font.getData().setScale(0.4f);
+                yOffset = 80;
+                break;
+            case "GOOD!":
+                game.font.setColor(140/255f, 255/255f, 140/255f, alpha); // 140, 255, 140
+                game.font.getData().setScale(0.37f);
+                yOffset = 70;
+                break;
+            default: //miss
+                game.font.setColor(255/255f, 100/255f, 100/255f, alpha); // 255, 100, 100
+                game.font.getData().setScale(0.33f);
+                yOffset = 60;
+        }
+        // draw the image, center = 
+        GlyphLayout layout = new GlyphLayout();
+        layout.setText(game.font, judgement);
+        game.font.draw(game.batch, judgement, 958.375f - layout.width/2, 540 + yOffset); // center ~ 958.375, 540
+        // change colors + size + whatnot back to normal
+        game.font.setColor(Color.WHITE);
+        game.font.getData().setScale(1);
+        game.batch.end();
     }
 
     private void handleSweeperInput() {
@@ -223,6 +313,12 @@ public class GameplayScreen extends ScreenAdapter {
             if (n.isHittable && !n.hit && !n.passed) {
                 if (gridCells[n.cell].contains(mx, my)) {
                     n.hit = true;
+
+                    // if within certain range --> perfect, or blah blah
+                    float timeUntilHit = n.hitTime - songTimer;
+                    if (timeUntilHit < HIT_WINDOW * 0.1) n.rating = "PERFECT!";
+                    else if (timeUntilHit < HIT_WINDOW * 0.5) n.rating = "GREAT!";
+                    else n.rating = "GOOD!";
 
                     // hit sound when touch
                     if (hitSound != null) {
@@ -257,13 +353,20 @@ public class GameplayScreen extends ScreenAdapter {
     }
 
     private void drawThickRoundedRect(float x, float y, float w, float h, int thickness) {
-        float a = (thickness-1) * 0.5f;
-        drawRoundedRect(x - a, y - a, w + a*2, h + a*2, w * 0.15f + a); // outer
-        shapeRenderer.setColor(Color.BLACK);
-        drawRoundedRect(x, y, w, h, w * 0.15f); // inner
-}
+        for(int i = 0; i < thickness; i++) {
+            shapeRenderer.rect(x - (i * 0.5f), y - (i * 0.5f), w + i, h + i);
+        }
+        // float r = Math.min(Math.min(w, h) * 0.5f, 200f);
+        // shapeRenderer.setColor(new Color(0,0,0,0));
+        // drawRoundedRect(x, y, w, h, w * 0.15f); // inner
+
+        // shapeRenderer.setColor(c);
+        // float a = (thickness-1) * 0.5f;
+        // drawRoundedRect(x - a, y - a, w + a*2, h + a*2, w * 0.15f + a); // outer
+    }
 
     private void drawRoundedRect(float x, float y, float w, float h, float r) {
+        r = Math.min(r, Math.min(w,h) * 0.5f - 1);
         // center rects
         shapeRenderer.rect(x + r, y, w - 2*r, h);
         shapeRenderer.rect(x, y + r, w, h - 2*r);
