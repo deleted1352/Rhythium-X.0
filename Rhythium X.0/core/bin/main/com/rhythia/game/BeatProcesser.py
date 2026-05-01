@@ -10,7 +10,7 @@ def load(file_name):
     #path = path.replace("Rhythium-X.0", "Rhythium X.0")
     print(f"Attempting to load: {file_name}")
     y, sr = librosa.load(file_name)
-    tempo_dynamic = librosa.feature.tempo(y=y, sr=sr, aggregate=None, std_bpm=4)
+    tempo_dynamic = librosa.feature.tempo(y=y, sr=sr, aggregate=None, std_bpm=6)
 
     tempo, beats_dynamic = librosa.beat.beat_track(y=y, sr=sr, units='time',
                                                 bpm=tempo_dynamic, trim=False)
@@ -53,6 +53,9 @@ def export(file_name, beats_dynamic, coords):
     output_path = base_name + ".txt"
 
     print(f"Exporting to: {output_path}")
+    with open("example.txt", "w"):
+        pass #clear
+
 
     with open(output_path, 'w') as f:
         

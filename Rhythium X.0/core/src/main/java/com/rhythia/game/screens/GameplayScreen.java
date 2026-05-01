@@ -66,7 +66,7 @@ public class GameplayScreen extends ScreenAdapter {
             spawnCells[i] = new Rectangle(spawnX + ((i % 3) * spawnCellSize), spawnY + ((i / 3) * spawnCellSize), spawnCellSize, spawnCellSize);
         }
 
-        allNotes = loadMap("nevada_2.txt");
+        allNotes = loadMap("nevada.txt");
 
         // load music
         song = Gdx.audio.newMusic(Gdx.files.internal("nevada.mp3"));

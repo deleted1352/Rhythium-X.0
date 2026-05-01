@@ -57,8 +57,8 @@ public class Main extends Game {
         generator.dispose();
         
 
-        this.setScreen(new UploadScreen(this));
-        //this.setScreen(new MenuScreen(this));
+        //this.setScreen(new UploadScreen(this));
+        this.setScreen(new MenuScreen(this));
     }
 
     @Override
