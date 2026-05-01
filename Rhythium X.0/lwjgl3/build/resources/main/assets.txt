@@ -1,6 +1,9 @@
+Crystal Castles - Vanished.mp3
+Fonts/abel-regular.ttf
 background.png
 hit.mp3
 libgdx.png
 nevada.mp3
 nevada.txt
+nevada_2.txt
 play_button.png

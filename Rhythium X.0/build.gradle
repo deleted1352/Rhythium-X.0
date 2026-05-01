@@ -7,10 +7,13 @@ buildscript {
     maven { url = 'https://central.sonatype.com/repository/maven-snapshots/' }
   }
   dependencies {
-
-
   }
 }
+
+plugins {
+    id "ru.vyarus.use-python" version "4.0.0" 
+}
+
 
 allprojects {
   apply plugin: 'eclipse'
@@ -67,3 +70,9 @@ subprojects {
 }
 
 eclipse.project.name = 'Rhythium X.O' + '-parent'
+
+python {
+  pip 'numpy:1.26.4'
+  pip 'librosa:0.10.2.post1'
+  pip 'pandas:2.2.2'
+}

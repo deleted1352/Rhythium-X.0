@@ -14,8 +14,6 @@ import com.rhythia.game.Main;
 
 public class GameplayScreen extends ScreenAdapter {
     private final Main game;
-    private final String songFile;
-    private final String mapFile;
     private Music song;
     private Sound hitSound; // sound variable
     private float songTimer = 0.0f;
@@ -38,13 +36,7 @@ public class GameplayScreen extends ScreenAdapter {
     private final float HIT_WINDOW = 0.12f; // original: 0.12f
 
     public GameplayScreen(Main game) {
-        this(game, "nevada.mp3", "nevada_2.txt");
-    }
-
-    public GameplayScreen(Main game, String songFile, String mapFile) {
         this.game = game;
-        this.songFile = songFile;
-        this.mapFile = mapFile;
         this.shapeRenderer = new ShapeRenderer();
     }
 
@@ -70,10 +62,10 @@ public class GameplayScreen extends ScreenAdapter {
             spawnCells[i] = new Rectangle(spawnX + ((i % 3) * spawnCellSize), spawnY + ((i / 3) * spawnCellSize), spawnCellSize, spawnCellSize);
         }
 
-        allNotes = loadMap(mapFile);
+        allNotes = loadMap("nevada_2.txt");
 
         // load music
-        song = Gdx.audio.newMusic(Gdx.files.internal(songFile));
+        song = Gdx.audio.newMusic(Gdx.files.internal("nevada.mp3"));
         song.setVolume(0.5f);
         song.play();
 

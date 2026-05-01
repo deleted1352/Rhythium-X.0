@@ -83,7 +83,13 @@ public class UploadScreen extends ScreenAdapter{
     }
 
     private void handleFile(File selectedFile) {
-        File assetsDir = resolveAssetsDir();
+        File assetsDir = new File(System.getProperty("user.dir")); //idk why user.dir is assets folder, just trial and error
+        File projectRoot = assetsDir.getParentFile();
+        
+        
+        System.out.println(projectRoot);
+        System.out.println(assetsDir);
+
         if (!assetsDir.exists()) assetsDir.mkdirs();
 
         File dest = new File(assetsDir, selectedFile.getName());
@@ -97,18 +103,20 @@ public class UploadScreen extends ScreenAdapter{
             return;
         }
 
-        File projectRoot = assetsDir.getParentFile();
+         
         System.out.println("Project root: " + projectRoot.getAbsolutePath());
 
         String scriptPath = new File(projectRoot,
-            "core/src/main/java/com/rhythia/game/BeatProcesser.py").getAbsolutePath();
+        "core/src/main/java/com/rhythia/game/BeatProcesser.py").getAbsolutePath();
 
         String filePathForScript = dest.getAbsolutePath();
-        String mapFileName = removeExtension(selectedFile.getName()) + ".txt";
 
         System.out.println("Script path: " + scriptPath);
         System.out.println("File path for script: " + filePathForScript);
-
+        
+        ///Users/warrensu/Programming/Personal/Rhythium-X.0/Rhythium X.0/assets/core/src/main/java/com/rhythia/game/BeatProcesser.py'
+        ///Users/warrensu/Programming/Personal/Rhythium-X.0/Rhythium X.0/assets/core/src/main/java/com/rhythia/game/BeatProcesser.py
+        ///Users/warrensu/Programming/Personal/Rhythium-X.0/Rhythium X.0/core/src/main/java/com/rhythia/game/BeatProcesser.py
         ProcessBuilder pb = new ProcessBuilder(
             findPython(),
             scriptPath,
@@ -129,16 +137,8 @@ public class UploadScreen extends ScreenAdapter{
                 System.out.println("PYTHON: " + line);
             }
             int exitCode = process.waitFor();
-            if (exitCode != 0) {
-                System.out.println("Python processing failed with exit code: " + exitCode);
-                return;
-            }
-            File generatedMap = new File(assetsDir, mapFileName);
-            if (!generatedMap.exists()) {
-                System.out.println("Generated map file not found: " + generatedMap.getAbsolutePath());
-                return;
-            }
-            Gdx.app.postRunnable(() -> game.setScreen(new GameplayScreen(game, selectedFile.getName(), mapFileName)));
+            System.out.println("Python exited with code: " + exitCode);
+            
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -164,36 +164,17 @@ public class UploadScreen extends ScreenAdapter{
         });
     }
 
-    private File resolveAssetsDir() {
-        File cwd = new File(System.getProperty("user.dir"));
-        if ("assets".equals(cwd.getName())) {
-            return cwd;
-        }
-        return new File(cwd, "assets");
-    }
+    
 
-    private String removeExtension(String filename) {
-        int dot = filename.lastIndexOf('.');
-        if (dot <= 0) return filename;
-        return filename.substring(0, dot);
-    }
     private String findPython() {
-        String[] candidates = {
-            "/opt/homebrew/bin/python3",   // Mac Apple Silicon (Homebrew)
-            "/usr/local/bin/python3",      // Mac Intel (Homebrew)
-            "/opt/homebrew/bin/python",    // some Homebrew setups
-            "/usr/bin/python3",            // Linux / Mac system
-            "/usr/local/bin/python",
-            "python3",                     // fallback
-            "python"
-        };
-        for (String candidate : candidates) {
-            File f = new File(candidate);
-            if (f.exists()) return candidate;
-        }
-        return "python3";
+        File cwd = new File(System.getProperty("user.dir"));
+        cwd = cwd.getParentFile();
+        System.out.println("find python cwd: " + cwd);
+        File venvPython = new File(cwd, ".venv/bin/python");
+        System.out.println(venvPython);
+        if (venvPython.exists()) return venvPython.getAbsolutePath();
+        return "python3"; // fallback
     }
-
 
     
 

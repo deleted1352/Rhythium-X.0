@@ -12,6 +12,7 @@ buildscript {
 }
 plugins {
   id "application"
+  id "ru.vyarus.use-python" version "4.0.0"
 }
 apply plugin: 'io.github.fourlastor.construo'
 
@@ -59,6 +60,7 @@ run {
   jvmArgs += "--enable-native-access=ALL-UNNAMED"
   if (os.contains('mac')) jvmArgs += "-XstartOnFirstThread"
 }
+
 
 jar {
 // sets the name of the .jar file this produces to the name of the game or app, with the version after.

@@ -60,18 +60,15 @@ def export(file_name, beats_dynamic, coords):
             f.write(f"{beats_dynamic[i]},{coords[i]}\n")
 
 def main():
-    if len(sys.argv) < 3:
-        print("Usage: BeatProcesser.py process_beats <audio_path>")
-        sys.exit(1)
-
+    
     command = sys.argv[1]
     if command != "process_beats":
-        print(f"Unknown command: {command}")
+        print(f"unknown command: {command}")
         sys.exit(1)
 
     file_name = sys.argv[2]
     if not os.path.isfile(file_name):
-        print(f"Audio file not found: {file_name}")
+        print(f"audio file not found: {file_name}")
         sys.exit(1)
 
     print("got the command")
