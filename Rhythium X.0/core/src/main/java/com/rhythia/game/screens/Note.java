@@ -11,6 +11,7 @@ public class Note {
     public float color; // random color
     public float saturation;
     public float offset = (float) Math.random() * 10;
+    public String rating = "MISS";
 
     public Note(float hitTime, int cell, float color, float s) {
         this.hitTime = hitTime;
