@@ -10,7 +10,7 @@ def load(file_name):
     #path = path.replace("Rhythium-X.0", "Rhythium X.0")
     print(f"Attempting to load: {file_name}")
     y, sr = librosa.load(file_name)
-    tempo_dynamic = librosa.feature.tempo(y=y, sr=sr, aggregate=None, std_bpm=6)
+    tempo_dynamic = librosa.feature.tempo(y=y, sr=sr, aggregate=None, std_bpm=3) #std_bpm is currently relatively low
 
     tempo, beats_dynamic = librosa.beat.beat_track(y=y, sr=sr, units='time',
                                                 bpm=tempo_dynamic, trim=False)
@@ -36,11 +36,11 @@ def process(beats_dynamic):
     i = 0
     while(i < len(distances) - 3):
 
-        if np.array(distances[i: i + 9]).mean() < mean * 0.8: #close beats -> spiral
+        if np.array(distances[i: i + 9]).mean() < mean * 0.93: #close beats -> spiral
             i += 9
             coords.extend([0, 1, 2, 3, 5, 6, 7, 8])
 
-        elif np.array(distances[i: i + 3]).mean() > mean * 1.2: #slow beats -> triangle
+        elif np.array(distances[i: i + 3]).mean() > mean * 1.15: #slow beats -> triangle
             i += 3
             coords.extend([1, 3, 5])
         else:

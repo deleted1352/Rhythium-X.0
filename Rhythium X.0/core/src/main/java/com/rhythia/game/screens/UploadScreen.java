@@ -21,10 +21,12 @@ public class UploadScreen extends ScreenAdapter{
     private int gridSize = 600;
     private int gridX, gridY;
     private Rectangle uploadBtn;
-
-    public UploadScreen(Main game) {
+    private MenuScreen menuScreen;
+    
+    public UploadScreen(Main game, MenuScreen menuScreen) {
         this.game = game;
         this.shapeRenderer = new ShapeRenderer();
+        this.menuScreen = menuScreen;
     }
 
     @Override
@@ -44,6 +46,12 @@ public class UploadScreen extends ScreenAdapter{
         // clear screen
         Gdx.gl.glClearColor(0.01f, 0.01f, 0.01f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+        if (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.ESCAPE)) {
+            
+            game.setScreen(new MenuScreen(game));
+            return;
+        }
 
 
         if (Gdx.input.justTouched()) {
@@ -139,6 +147,15 @@ public class UploadScreen extends ScreenAdapter{
             int exitCode = process.waitFor();
             System.out.println("Python exited with code: " + exitCode);
             
+            // after processing, add song to menu
+            if (exitCode == 0) {
+                String songName = selectedFile.getName();
+                String audioFile = songName;
+                String mapFile = songName.replaceAll("\\.mp3$", ".txt");
+                SongEntry newSong = new SongEntry(songName.replaceAll("\\.mp3$", ""), audioFile, mapFile);
+                menuScreen.addSong(newSong);
+                System.out.println("Song added to menu: " + newSong.title);
+            }
         } catch (Exception ex) {
             ex.printStackTrace();
         }

@@ -1,6 +1,6 @@
 package com.rhythia.game.screens;
 
-public class SongEntry {
+public class SongEntry implements Comparable<SongEntry> {
     public String title;
     public String audioFile;
     public String mapFile;
@@ -9,5 +9,20 @@ public class SongEntry {
         this.title = title;
         this.audioFile = audioFile;
         this.mapFile = mapFile;
+    }
+    public int compareTo(SongEntry other) {
+        return this.title.compareTo(other.title);
+    }
+
+    public String toString() {
+        return title;
+    }
+
+    public String getAudioFile() {
+        return audioFile;
+    }
+
+    public String getMapFile() {
+        return mapFile;
     }
 }

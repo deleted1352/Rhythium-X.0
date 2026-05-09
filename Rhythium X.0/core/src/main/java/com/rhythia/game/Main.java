@@ -56,9 +56,10 @@ public class Main extends Game {
         font = generator.generateFont(params);
         generator.dispose();
         
-
-        //this.setScreen(new UploadScreen(this));
-        this.setScreen(new MenuScreen(this));
+        MenuScreen menuScreen = new MenuScreen(this);
+        
+        //this.setScreen(new UploadScreen(this, menuScreen));
+        this.setScreen(menuScreen);
     }
 
     @Override
