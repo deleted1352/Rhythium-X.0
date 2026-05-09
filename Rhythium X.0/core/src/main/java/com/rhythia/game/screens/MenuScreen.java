@@ -18,15 +18,16 @@ public class MenuScreen extends ScreenAdapter {
     private Vector3 touchPoint;
     private final float BUTTON_HEIGHT = 80;
     private final float BUTTON_WIDTH = 800;
-    private final float START_Y = 150;
+    private final float START_Y = 200;
     private final float PADDING = 40;
-
+    private Rectangle uploadButton;
+    private UploadScreen uploadScreen;
     public MenuScreen(Main game) {
         this.game = game;
         this.songs = new TreeSet<>();
         this.songBounds = new ArrayList<>();
         this.touchPoint = new Vector3();
-
+        this.uploadScreen = new UploadScreen(game, this);
         // initialize default songs
         songs.add(new SongEntry("NEVADA - VICETONE", "nevada.mp3", "nevada.txt"));
     }
@@ -60,6 +61,12 @@ public class MenuScreen extends ScreenAdapter {
     @Override
     public void show() {
         updateSongBounds();
+        uploadButton = new Rectangle(
+        100,
+        40,
+        300,
+        60
+    );
     }
 
     @Override
@@ -85,8 +92,13 @@ public class MenuScreen extends ScreenAdapter {
 
         
         game.font.getData().setScale(0.4f);
-        game.font.draw(game.batch, "Tap a song to play", 100, 100);
+        game.font.draw(game.batch, "[UPLOAD SONG]", 100, 60);
+        //game.font.draw(game.batch, "Tap a song to play", 100, 100);
         
+
+        
+
+
         game.batch.end();
 
         // handle input
@@ -104,6 +116,8 @@ public class MenuScreen extends ScreenAdapter {
                 }
                 index2++;
             }
+
+            game.setScreen(uploadScreen);
         }
     }
 }
