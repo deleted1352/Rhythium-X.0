@@ -47,6 +47,11 @@ public class UploadScreen extends ScreenAdapter{
         Gdx.gl.glClearColor(0.01f, 0.01f, 0.01f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+         if (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.ESCAPE)) {
+            
+            game.setScreen(new MenuScreen(game));
+            return;
+        }
 
         if (Gdx.input.justTouched()) {
             float x = Gdx.input.getX();
@@ -149,6 +154,8 @@ public class UploadScreen extends ScreenAdapter{
                 SongEntry newSong = new SongEntry(songName.replaceAll("\\.mp3$", ""), audioFile, mapFile);
                 menuScreen.addSong(newSong);
                 System.out.println("Song added to menu: " + newSong.title);
+                System.out.println(menuScreen.getSongs());
+                //game.setScreen(menuScreen);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -160,18 +167,48 @@ public class UploadScreen extends ScreenAdapter{
         if (!uploadBtn.contains(x, y)) return;
 
         SwingUtilities.invokeLater(() -> {
+
             JFileChooser chooser = new JFileChooser();
-            chooser.setFileFilter(new FileNameExtensionFilter("MP3 Files", "mp3"));
+            chooser.setFileFilter(
+                new FileNameExtensionFilter("MP3 Files", "mp3")
+            );
 
             int result = chooser.showOpenDialog(null);
 
             if (result == JFileChooser.APPROVE_OPTION) {
-                File file = chooser.getSelectedFile();
-                System.out.println("uploaded the mp3 file");
-                handleFile(file);
-            }
 
-            
+                File file = chooser.getSelectedFile();
+
+                System.out.println("uploaded the mp3 file");
+
+                // run heavy work OFF swing thread
+                new Thread(() -> {
+
+                    handleFile(file);
+
+                    // return to libgdx thread
+                    Gdx.app.postRunnable(() -> {
+                        game.setScreen(menuScreen);
+                        try {
+                            Object window = Gdx.graphics.getClass()
+                                .getMethod("getWindow")
+                                .invoke(Gdx.graphics);
+                            long handle = (long) window.getClass()
+                                .getMethod("getWindowHandle")
+                                .invoke(window);
+                            Class.forName("org.lwjgl.glfw.GLFW")
+                                .getMethod("glfwFocusWindow", long.class)
+                                .invoke(null, handle);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    });
+
+
+
+
+                }).start();
+            }
         });
     }
 

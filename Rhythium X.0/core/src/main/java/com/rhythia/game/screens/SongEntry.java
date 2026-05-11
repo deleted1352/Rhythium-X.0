@@ -10,6 +10,10 @@ public class SongEntry implements Comparable<SongEntry> {
         this.audioFile = audioFile;
         this.mapFile = mapFile;
     }
+
+    public SongEntry(String title) {
+        this(title, title + ".mp3", title + ".txt");
+    }
     public int compareTo(SongEntry other) {
         return this.title.compareTo(other.title);
     }

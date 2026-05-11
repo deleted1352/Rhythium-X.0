@@ -1,11 +1,13 @@
 package com.rhythia.game.screens;
 
 import java.util.TreeSet;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
@@ -30,6 +32,19 @@ public class MenuScreen extends ScreenAdapter {
         this.uploadScreen = new UploadScreen(game, this);
         // initialize default songs
         songs.add(new SongEntry("NEVADA - VICETONE", "nevada.mp3", "nevada.txt"));
+        File assetsDir = new File(System.getProperty("user.dir"));
+        File[] files = assetsDir.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                if (file.getName().endsWith(".mp3") && !file.getName().equals("hit.mp3") && !file.getName().equals("nevada.mp3")) {
+                    String songName = file.getName().replace(".mp3", "");
+                    songs.add(new SongEntry(songName));
+                }
+            }
+        }
+    
+
+
     }
 
     public void addSong(SongEntry song) {
@@ -58,15 +73,21 @@ public class MenuScreen extends ScreenAdapter {
         }
     }
 
+    
     @Override
     public void show() {
         updateSongBounds();
+
         uploadButton = new Rectangle(
-        100,
-        40,
-        300,
-        60
-    );
+            100,
+            40,
+            300,
+            60
+        );
+
+       
+
+        updateSongBounds();
     }
 
     @Override
@@ -81,9 +102,9 @@ public class MenuScreen extends ScreenAdapter {
         game.font.draw(game.batch, "RHYTHIUM", 100, Gdx.graphics.getHeight() - 50);
 
         // Draw all songs
-        game.font.getData().setScale(0.6f);
+        game.font.getData().setScale(0.6f * songs.size() / 4); // scale font based on number of songs
         int index = 1;
-        System.out.println(songs);
+        //System.out.println(songs);
         for (SongEntry song : songs) {
             float yPos = START_Y + ((index - 1) * (BUTTON_HEIGHT + PADDING));
             game.font.draw(game.batch, index + ". " + song.title, 120, Gdx.graphics.getHeight() - yPos + 30);
