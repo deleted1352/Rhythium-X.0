@@ -4,8 +4,12 @@ Fonts/abel-regular.ttf
 back_on_track_gd.mp3
 back_on_track_gd.txt
 background.png
+chad.mp3
+chad.txt
 hit.mp3
 libgdx.png
 nevada.mp3
 nevada.txt
 play_button.png
+service.mp3
+service.txt

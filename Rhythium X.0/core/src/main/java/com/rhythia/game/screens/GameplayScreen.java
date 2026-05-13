@@ -54,6 +54,8 @@ public class GameplayScreen extends ScreenAdapter {
         // Gdx.gl.glEnable(GL20.GL_BLEND);
         // Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 
+        //0 1 2
+        //3 4 5
         gridX = (Gdx.graphics.getWidth() - gridSize) / 2;
         gridY = (Gdx.graphics.getHeight() - gridSize) / 2;
         float cellSize = gridSize / 3;

@@ -34,22 +34,21 @@ def process(beats_dynamic):
     coords = []
 
     i = 0
+
+    smalls = [[1, 3, 5], [4, 4, 1]]
+    meds = [[4, 4, 4, 0, 2, 7], [0, 1, 2, 6, 7 ,8], [0, 0, 2, 2, 4 ,4]]
     while(i < len(distances) - 3):
 
         if np.array(distances[i: i + 9]).mean() < mean * 0.93: #close beats -> spiral
-            i += 9
-            coords.extend([0, 1, 2, 3, 5, 6, 7, 8])
+            i += 8
+            coords.extend([0, 1, 2, 4, 8, 7, 6, 3])
 
         elif np.array(distances[i: i + 3]).mean() > mean * 1.15: #slow beats -> triangle
             i += 3
-            coords.extend([1, 3, 5])
+            coords.extend(random.choice(smalls))
         else:
             i+= 6
-            if(random.random() < 0.5):
-                coords.extend([4, 4, 4, 0, 2, 7])
-
-            else:
-                coords.extend([0, 1, 2, 6, 7 ,8])
+            coords.extend(random.choice(meds))
     return coords
 def export(file_name, beats_dynamic, coords):
     # remove the .mp3 extension before adding .txt

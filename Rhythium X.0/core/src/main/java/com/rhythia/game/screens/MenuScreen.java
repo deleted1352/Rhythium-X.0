@@ -111,7 +111,7 @@ public class MenuScreen extends ScreenAdapter {
         game.font.draw(game.batch, "RHYTHIUM", 100, Gdx.graphics.getHeight() - 50);
 
         // Draw all songs
-        game.font.getData().setScale(0.6f * songs.size() / 4); // scale font based on number of songs
+        game.font.getData().setScale(1f * 1/songs.size()); // scale font based on number of songs
         int index = 1;
         //System.out.println(songs);
         for (SongEntry song : songs) {
