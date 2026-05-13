@@ -6,8 +6,6 @@ back_on_track_gd.txt
 background.png
 hit.mp3
 libgdx.png
-losing my mind.mp3
-losing my mind.txt
 nevada.mp3
 nevada.txt
 play_button.png

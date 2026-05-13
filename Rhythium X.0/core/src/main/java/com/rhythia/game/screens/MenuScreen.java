@@ -8,28 +8,34 @@ import java.util.List;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.rhythia.game.Main;
+
 
 public class MenuScreen extends ScreenAdapter {
     private final Main game;
     private TreeSet<SongEntry> songs;
     private ArrayList<Rectangle> songBounds;
     private Vector3 touchPoint;
-    private final float BUTTON_HEIGHT = 80;
-    private final float BUTTON_WIDTH = 800;
+    private float buttonHeight = 80;
+    private float buttonWidth = 800;
     private final float START_Y = 200;
     private final float PADDING = 40;
     private Rectangle uploadButton;
     private UploadScreen uploadScreen;
+    private ShapeRenderer shapeRenderer;
     public MenuScreen(Main game) {
         this.game = game;
         this.songs = new TreeSet<>();
         this.songBounds = new ArrayList<>();
         this.touchPoint = new Vector3();
         this.uploadScreen = new UploadScreen(game, this);
+        shapeRenderer = new ShapeRenderer();
         // initialize default songs
         songs.add(new SongEntry("NEVADA - VICETONE", "nevada.mp3", "nevada.txt"));
         File assetsDir = new File(System.getProperty("user.dir"));
@@ -49,12 +55,12 @@ public class MenuScreen extends ScreenAdapter {
 
     public void addSong(SongEntry song) {
         songs.add(song);
-        updateSongBounds();
+        //updateSongBounds();
     }
 
     public void removeSong(SongEntry song) {
         songs.remove(song);
-        updateSongBounds();
+        //updateSongBounds();
     }
 
     public TreeSet<SongEntry> getSongs() {
@@ -62,12 +68,15 @@ public class MenuScreen extends ScreenAdapter {
     }
 
     
-    private void updateSongBounds() {
+    private void updateSongBounds(float buttonHeight) {      
         songBounds.clear();
+        
         int index = 0;
         for (SongEntry song : songs) {
-            float yPos = START_Y + (index * (BUTTON_HEIGHT + PADDING));
-            Rectangle bounds = new Rectangle(100, Gdx.graphics.getHeight() - yPos - BUTTON_HEIGHT, BUTTON_WIDTH, BUTTON_HEIGHT);
+            float yPos = START_Y + (index * (buttonHeight + PADDING));
+            Rectangle bounds = new Rectangle(100, Gdx.graphics.getHeight() - yPos - buttonHeight, buttonWidth, buttonHeight);
+            
+            
             songBounds.add(bounds);
             index++;
         }
@@ -76,7 +85,7 @@ public class MenuScreen extends ScreenAdapter {
     
     @Override
     public void show() {
-        updateSongBounds();
+        updateSongBounds(80f);
 
         uploadButton = new Rectangle(
             100,
@@ -87,7 +96,7 @@ public class MenuScreen extends ScreenAdapter {
 
        
 
-        updateSongBounds();
+        //updateSongBounds();
     }
 
     @Override
@@ -106,11 +115,12 @@ public class MenuScreen extends ScreenAdapter {
         int index = 1;
         //System.out.println(songs);
         for (SongEntry song : songs) {
-            float yPos = START_Y + ((index - 1) * (BUTTON_HEIGHT + PADDING));
+            float yPos = START_Y + ((index - 1) * (buttonHeight + PADDING));
             game.font.draw(game.batch, index + ". " + song.title, 120, Gdx.graphics.getHeight() - yPos + 30);
             index++;
         }
 
+        updateSongBounds(game.font.getCapHeight());
         
         game.font.getData().setScale(0.4f);
         game.font.draw(game.batch, "[UPLOAD SONG]", 100, 60);
@@ -121,9 +131,15 @@ public class MenuScreen extends ScreenAdapter {
 
 
         game.batch.end();
-
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        shapeRenderer.setColor(Color.BLUE);
+        for (Rectangle r : songBounds) {
+            shapeRenderer.rect(r.x, r.y, r.width, r.height);
+        }
+        shapeRenderer.end();
         // handle input
         if (Gdx.input.justTouched()) {
+            System.out.println(Gdx.input.getX() + ", " + Gdx.input.getY());
             touchPoint.set(Gdx.input.getX(), Gdx.input.getY(), 0);
             float flippedY = Gdx.graphics.getHeight() - touchPoint.y;
 
@@ -138,7 +154,11 @@ public class MenuScreen extends ScreenAdapter {
                 index2++;
             }
 
-            game.setScreen(uploadScreen);
+            if(uploadButton.contains(new Vector2(touchPoint.x, flippedY))){
+                game.setScreen(uploadScreen);
+                return;
+            }
+            
         }
     }
 }

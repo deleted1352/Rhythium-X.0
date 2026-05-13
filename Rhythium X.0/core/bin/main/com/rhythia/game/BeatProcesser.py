@@ -2,7 +2,7 @@ import numpy as np
 import librosa
 import os
 import sys
-
+import random
 
 
 def load(file_name):
@@ -10,7 +10,7 @@ def load(file_name):
     #path = path.replace("Rhythium-X.0", "Rhythium X.0")
     print(f"Attempting to load: {file_name}")
     y, sr = librosa.load(file_name)
-    tempo_dynamic = librosa.feature.tempo(y=y, sr=sr, aggregate=None, std_bpm=3) #std_bpm is currently relatively low
+    tempo_dynamic = librosa.feature.tempo(y=y, sr=sr, aggregate=None, std_bpm=6) #std_bpm is currently relatively low
 
     tempo, beats_dynamic = librosa.beat.beat_track(y=y, sr=sr, units='time',
                                                 bpm=tempo_dynamic, trim=False)
@@ -45,7 +45,11 @@ def process(beats_dynamic):
             coords.extend([1, 3, 5])
         else:
             i+= 6
-            coords.extend([4, 4, 4, 0, 2, 7])
+            if(random.random() < 0.5):
+                coords.extend([4, 4, 4, 0, 2, 7])
+
+            else:
+                coords.extend([0, 1, 2, 6, 7 ,8])
     return coords
 def export(file_name, beats_dynamic, coords):
     # remove the .mp3 extension before adding .txt
