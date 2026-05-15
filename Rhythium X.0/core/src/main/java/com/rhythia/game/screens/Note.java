@@ -12,6 +12,7 @@ public class Note {
     public float saturation;
     public float offset = (float) Math.random() * 10;
     public String rating = "MISS";
+    public boolean playedSound = false;
 
     public Note(float hitTime, int cell, float color, float s) {
         this.hitTime = hitTime;
