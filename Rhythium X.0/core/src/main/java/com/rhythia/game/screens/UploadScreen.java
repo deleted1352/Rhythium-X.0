@@ -153,7 +153,11 @@ public class UploadScreen extends ScreenAdapter{
                 String songName = selectedFile.getName();
                 String audioFile = songName;
                 String mapFile = songName.replaceAll("\\.mp3$", ".txt");
+                AudioFileFormat baseFileFormat = AudioSystem.getAudioFileFormat(selectedFile);
+                Map<String, Object> properties = baseFileFormat.properties();
+                Long duration = (Long) properties.get("duration"); // Duration in microsecon
                 SongEntry newSong = new SongEntry(songName.replaceAll("\\.mp3$", ""), audioFile, mapFile);
+                newSong.length = duration;
                 menuScreen.addSong(newSong);
                 System.out.println("Song added to menu: " + newSong.title);
                 System.out.println(menuScreen.getSongs());
