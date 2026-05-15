@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 import com.rhythia.game.Main;
@@ -20,6 +21,7 @@ public class GameplayScreen extends ScreenAdapter {
     private float songTimer = 0.0f;
     private ShapeRenderer shapeRenderer;
     private double hit = 0;
+    private Long duration;
 
     private Rectangle[] gridCells = new Rectangle[9];
     private Rectangle[] spawnCells = new Rectangle[9];
@@ -42,8 +44,9 @@ public class GameplayScreen extends ScreenAdapter {
      */
     public GameplayScreen(Main game, SongEntry entry) {
         this.game = game;
-        this.entry = entry;
+        this.entry = entry; 
         this.shapeRenderer = new ShapeRenderer();
+        this.duration = entry.length;
     }
 
     @Override
@@ -92,9 +95,26 @@ public class GameplayScreen extends ScreenAdapter {
      */
     @Override
     public void render(float delta) {
+        // TODO show points earned per hit in tile location
         // clear screen
         Gdx.gl.glClearColor(0.01f, 0.01f, 0.01f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+        // shapeRenderer.begin(ShapeType.Filled);
+        
+        // list.updateStars(delta);
+        // for (Star s : list.stars) {
+        //     shapeRenderer.setColor(s.color);
+        //     shapeRenderer.circle(s.x, s.y, s.size, 32);
+        // }
+        // list.updateTrailStars(delta);
+        // for (Star s : list.trailStars) {
+        //     shapeRenderer.setColor(s.color);
+        //     shapeRenderer.triangle(s.x - s.size/2, s.y, s.x + s.size/2, s.y, s.x, s.y + s.length);
+        //     shapeRenderer.circle(s.x, s.y, s.size);
+        // }
+        // // shapeRenderer.triangle(0, 50, 150, 50, 100, 100);
+        // shapeRenderer.end();
 
         // enables middle of notes to be transparent
         // Gdx.gl.glEnable(GL20.GL_BLEND);
@@ -114,24 +134,36 @@ public class GameplayScreen extends ScreenAdapter {
         handleSweeperInput();
 
         // grid drawing
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.setColor(Color.GRAY);
+        shapeRenderer.rect(gridX + 50, gridY + gridSize + 25, gridSize - 100, 15);
+        shapeRenderer.setColor(Color.WHITE);
+        shapeRenderer.rect(gridX + 50, gridY + gridSize + 25, (gridSize - 100) * songTimer / duration, 15);
+        shapeRenderer.end();
+        
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-        shapeRenderer.setColor(1, 1, 1, 1);
-        drawThickRect(gridX, gridY, gridSize, gridSize, 3);
-        // shapeRenderer.end();
-
-        // shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 
         // update, process, draw notes
         int missedNotes = 0, i = 0; // notes not hit yet
 
-        // rendering the cubes, message "PERFECT!" or "MISS"
-        for (int j = allNotes.size - 1; j >= 0; j--) {
-            // Note: forwardN runs a forward loop to calculate HP, n renders the cubes to maintain layering
-            Note n = allNotes.get(j);
+        // calculating the HP, streak, points
+        float HP = 6;
+        int points = 0, streak = 0;
+
+        boolean a = true;
+        Note n1 = null; Note n2 = null; 
+        double addedPoints = 0;
+        for (int k = 0; k < allNotes.size; k++) {
+            Note n = allNotes.get(k);
             float timeUntilHit = n.hitTime - songTimer;
-
-            // while (n1 < allNotes.size && allNotes.get(n1).hitTime - songTimer <= HIT_WINDOW) 
-
+            
+            // finding n1, n2
+            if (timeUntilHit > 0 && a) {
+                a = false;
+                n2 = n; 
+                if (k-1 >= 0) n1 = allNotes.get(k-1);
+            }
+            
             if (Math.abs(timeUntilHit) <= HIT_WINDOW) {
                 n.isHittable = true;
             } else {
@@ -150,12 +182,46 @@ public class GameplayScreen extends ScreenAdapter {
 
             // shows all unpassed notes
             if (!n.hit && !n.passed) {i++;}
+            if (n.passed) {
+                if (n.hit) {
+                    if (HP < 6) HP += 0.5;
+                    float judgement = 0.5f;
+                    if (n.rating.equalsIgnoreCase("PERFECT!")) judgement = 1.0f;
+                    else if (n.rating.equalsIgnoreCase("GREAT!")) judgement = 0.7f;
+                    addedPoints = 300 * judgement * (1 + streak * 0.1);
+                    points += addedPoints;
+                    streak++;
+                }
+                else if (!n.hit) {
+                    HP--;
+                    streak = 0;
+                }
+            }
+        }
 
+        // draw grid
+        Color color = new Color(Color.WHITE);
+        if (n1 != null && n2 != null) color = updateGridColor(songTimer, n1, n2);
+        shapeRenderer.setColor(color);
+        drawThickRect(gridX, gridY, gridSize, gridSize, 5);
+        // shapeRenderer.setColor(Color.WHITE);
+
+        for (int j = allNotes.size - 1; j >= 0; j--) {
+            // Note: forwardN runs a forward loop to calculate HP, n renders the cubes to maintain layering
+            Note n = allNotes.get(j);
+            float timeUntilHit = n.hitTime - songTimer;
+
+            // hit sound when touch
+            if (hitSound != null && n.hit && timeUntilHit == 0 && !n.playedSound) {
+                hitSound.play(1.0f); // Volume 100%
+                // System.out.println("Played sound!");
+                n.playedSound = true;
+            }
             // shows approaching notes within approach interval
             if (!n.hit && !n.passed && timeUntilHit < APPROACH_TIME) {
                 float rawProg = 1.0f - (timeUntilHit / APPROACH_TIME);
                 // float alpha = Math.min((APPROACH_TIME - timeUntilHit) / FADE_IN_DURATION, 1.0f);
-                float easedProg = (float) Math.pow(rawProg * 1.005, 3); //original: rawProg * PUSHBACK
+                float easedProg = (float) Math.pow(rawProg * 1.001, 3); //original: rawProg * PUSHBACK
 
                 float startCX = spawnCells[n.cell].x + spawnCells[n.cell].width / 2;
                 float startCY = spawnCells[n.cell].y + spawnCells[n.cell].height / 2;
@@ -167,50 +233,45 @@ public class GameplayScreen extends ScreenAdapter {
                 float curSize = (gridCells[n.cell].width * 0.6f) * (SPAWN_SCALE + (1.0f - SPAWN_SCALE) * easedProg);
 
                 // making pulses, setting color
-                float t = songTimer + n.offset;
-                float v = 0.95f + 0.05f * (float) Math.sin(t * 4f);
+                float t = songTimer;
+                if (j - 1 >= 0) t -= allNotes.get(j - 1).hitTime; // edit of time gap bettween 2 notes is too long
+                float v = 0.85f + 0.15f * (float) Math.sin(t * 4f + Math.PI/2); // original 0.95 + 0.05x
+                float al = 0.4f + 0.6f * (float) Math.abs(Math.sin(t * 4f + Math.PI/2));
                 Color c = new Color();
                 c.fromHsv(n.color, n.saturation, v);
+                c.a = al;
                 shapeRenderer.setColor(c);
 
                 // mimicking 3D, the rectangle grows larger as it approaches approachtime
                 int thickness = (int) (curSize / 6); //timeuntilhit is default < 1
                 //
-                drawThickRect(curX - curSize / 2, curY - curSize / 2, curSize, curSize, thickness);                
+                drawThickRect(curX - curSize / 2, curY - curSize / 2, curSize, curSize, thickness);
             }
         }
         shapeRenderer.end();
-        // calculating the HP, streak, points
-        float HP = 6;
-        int points = 0, streak = 0;
-        for (int k = 0; k < allNotes.size; k++) {
-            Note n = allNotes.get(k);
-            // potential errors: n.hit --> not passed, final HP = 6, final n.hit = false
-            if (n.passed) {
-                // System.out.println(HP);
-                if (n.hit) {
-                    if (HP < 6) HP += 0.5;
-                    float judgement = 0.5f;
-                    if (n.rating.equalsIgnoreCase("PERFECT!")) judgement = 1.0f;
-                    else if (n.rating.equalsIgnoreCase("GREAT!")) judgement = 0.7f;
-                    points += 300 * judgement * (1 + streak * 0.1);
-                    streak++;
-                }
-                else if (!n.hit) {
-                    HP--;
-                    streak = 0;
-                }
-            }
-        }
-        // if (HP <= 0) game.batch.end(); // CHANGE TO END SCREEN, THIS CLOSES WHOLE APP
-        displayStats(i, missedNotes, streak, HP, points);
         
+        // if (HP <= 0) game.batch.end(); // CHANGE TO END SCREEN, THIS CLOSES WHOLE APP
+        displayStats(i, missedNotes, streak, HP, points, color);
+    }
+
+    private Color updateGridColor(float deltaTime, Note n1, Note n2)
+    {
+        float interTime = n2.hitTime - n1.hitTime;
+        Color n1C = new Color().fromHsv(n1.color, n1.saturation, 0.9f);
+        Color n2C = new Color().fromHsv(n2.color, n2.saturation, 0.9f);
+        float deltaTR = (n2C.r - n1C.r)/interTime;
+        float deltaTG = (n2C.g - n1C.g)/interTime;
+        float deltaTB = (n2C.b - n1C.b)/interTime;
+        float deltaCR = (songTimer - n1.hitTime) * deltaTR;
+        float deltaCG = (songTimer - n1.hitTime) * deltaTG;
+        float deltaCB = (songTimer - n1.hitTime) * deltaTB;
+        return new Color(n1C.r + deltaCR, n1C.g + deltaCG, n1C.b + deltaCB, 0.9f);
     }
 
     /**
      * Displays statistics: Misses, HP, Notes, Accuracy, Streak, Time, Title
      */
-    private void displayStats(int i, int missedNotes, int streak, double HP, int points)
+    private void displayStats(int i, int missedNotes, int streak, double HP, int points, Color c)
     {
         // displayingHelper: Misses, HP, Notes, and Accuracy
         // Self-display: 9x, Title, Time
@@ -231,11 +292,16 @@ public class GameplayScreen extends ScreenAdapter {
         int min = (int) songTimer / 60;
         String sec1 = sec + "";
         if (sec / 10 < 1) sec1 = "0" + sec;
-        String time = min + ":" + sec1 + " / 3:28";
+        String sec2 = duration % 60 + "";
+        if ((int) (duration % 60) / 10 < 1) sec2 = "0" + (int) (duration % 60);
+        String time = min + ":" + sec1 + " / " + duration / 60 + ":" + sec2;
+        // System.out.println(); 
 
         GlyphLayout layout = new GlyphLayout();
 
         game.batch.begin();
+
+        // game.font.setColor(c);
 
         game.font.getData().setScale(0.35f);
         float accC = displayStatsHelper("ACCURACY", a, 450, 390, layout);
@@ -244,7 +310,9 @@ public class GameplayScreen extends ScreenAdapter {
         displayStatsHelper("HP", HP + "", missC - layout.width/2f, 560, layout);
         layout.setText(game.font, "NOTES");
         displayStatsHelper("NOTES", notes, missC - layout.width/2f, 390, layout);
-        float xCenter = displayStatsHelper("ViceTone - Nevada", time, 835, 940, layout);
+        float xCenter = (gridX + (gridX + gridSize))/2f;
+        layout.setText(game.font, entry.title);
+        displayStatsHelper(entry.title, time, xCenter - layout.width/2f, 970, layout);
         // System.out.println(xCenter);
         layout.setText(game.font, "POINTS");
         displayStatsHelper("POINTS", points + "", accC - layout.width/2f, 560, layout);
@@ -252,6 +320,8 @@ public class GameplayScreen extends ScreenAdapter {
         game.font.getData().setScale(0.5f);
         layout.setText(game.font, streak + "x");
         game.font.draw(game.batch, streak + "x", accC - layout.width/2f, 710);
+
+        game.font.setColor(Color.WHITE);
         game.batch.end();
     }
 
