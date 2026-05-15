@@ -1,6 +1,8 @@
 Crystal Castles - Vanished.mp3
 Crystal Castles - Vanished.txt
 Fonts/abel-regular.ttf
+METAMORPHOSIS 4.mp3
+METAMORPHOSIS 4.txt
 back_on_track_gd.mp3
 back_on_track_gd.txt
 background.png

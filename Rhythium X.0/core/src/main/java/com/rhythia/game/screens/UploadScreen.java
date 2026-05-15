@@ -23,6 +23,8 @@ public class UploadScreen extends ScreenAdapter{
     private Rectangle uploadBtn;
     private MenuScreen menuScreen;
     
+    private volatile boolean openChooser = false;
+    private volatile boolean choosingFile = false;
     public UploadScreen(Main game, MenuScreen menuScreen) {
         this.game = game;
         this.shapeRenderer = new ShapeRenderer();
@@ -53,13 +55,13 @@ public class UploadScreen extends ScreenAdapter{
             return;
         }
 
-        if (Gdx.input.justTouched()) {
-            float x = Gdx.input.getX();
-            float y = Gdx.graphics.getHeight() - Gdx.input.getY();
-            System.out.println(x + "," + y);
+        if (Gdx.input.justTouched() && !choosingFile) {
+            //float x = Gdx.input.getX();
+            //float y = Gdx.graphics.getHeight() - Gdx.input.getY();
+            //System.out.println(x + "," + y);
 
-            handleUpload(uploadBtn, x, y);
-            
+            //handleUpload(uploadBtn, x, y);
+            handleUpload();
             
 
         }
@@ -163,55 +165,47 @@ public class UploadScreen extends ScreenAdapter{
     }
     
 
-    private void handleUpload(Rectangle uploadBtn, float x, float y) {
-        if (!uploadBtn.contains(x, y)) return;
+    private void handleUpload() {
+
+        choosingFile = true;
+
+        Gdx.graphics.setContinuousRendering(false);
 
         SwingUtilities.invokeLater(() -> {
 
             JFileChooser chooser = new JFileChooser();
+
             chooser.setFileFilter(
                 new FileNameExtensionFilter("MP3 Files", "mp3")
             );
 
             int result = chooser.showOpenDialog(null);
 
-            if (result == JFileChooser.APPROVE_OPTION) {
+            choosingFile = false;
 
-                File file = chooser.getSelectedFile();
+            Gdx.graphics.setContinuousRendering(true);
 
-                System.out.println("uploaded the mp3 file");
+            Gdx.graphics.requestRendering();
 
-                // run heavy work OFF swing thread
-                new Thread(() -> {
-
-                    handleFile(file);
-
-                    // return to libgdx thread
-                    Gdx.app.postRunnable(() -> {
-                        game.setScreen(menuScreen);
-                        try {
-                            Object window = Gdx.graphics.getClass()
-                                .getMethod("getWindow")
-                                .invoke(Gdx.graphics);
-                            long handle = (long) window.getClass()
-                                .getMethod("getWindowHandle")
-                                .invoke(window);
-                            Class.forName("org.lwjgl.glfw.GLFW")
-                                .getMethod("glfwFocusWindow", long.class)
-                                .invoke(null, handle);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    });
-
-
-
-
-                }).start();
+            if (result != JFileChooser.APPROVE_OPTION) {
+                return;
             }
+
+            File file = chooser.getSelectedFile();
+
+            new Thread(() -> {
+
+                handleFile(file);
+
+                Gdx.app.postRunnable(() -> {
+
+                    game.setScreen(menuScreen);
+
+                });
+
+            }).start();
         });
     }
-
     
 
     private String findPython() {

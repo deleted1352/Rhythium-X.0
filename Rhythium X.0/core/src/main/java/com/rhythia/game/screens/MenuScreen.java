@@ -77,6 +77,7 @@ public class MenuScreen extends ScreenAdapter {
             Rectangle bounds = new Rectangle(100, Gdx.graphics.getHeight() - yPos - buttonHeight, buttonWidth, buttonHeight);
             
             
+            
             songBounds.add(bounds);
             index++;
         }
@@ -111,12 +112,14 @@ public class MenuScreen extends ScreenAdapter {
         game.font.draw(game.batch, "RHYTHIUM", 100, Gdx.graphics.getHeight() - 50);
 
         // Draw all songs
-        game.font.getData().setScale(1f * 1/songs.size()); // scale font based on number of songs
+        game.font.getData().setScale(1f * 2/songs.size()); // scale font based on number of songs
+        buttonHeight = game.font.getCapHeight();
         int index = 1;
         //System.out.println(songs);
         for (SongEntry song : songs) {
+            //float yPos = START_Y + ((index - 1) * (buttonHeight + PADDING));
             float yPos = START_Y + ((index - 1) * (buttonHeight + PADDING));
-            game.font.draw(game.batch, index + ". " + song.title, 120, Gdx.graphics.getHeight() - yPos + 30);
+            game.font.draw(game.batch, index + ". " + song.title, 100, Gdx.graphics.getHeight() - yPos );
             index++;
         }
 
