@@ -16,6 +16,8 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.rhythia.game.Main;
 
+import com.mpatric.mp3agic.Mp3File;
+
 
 public class MenuScreen extends ScreenAdapter {
     private final Main game;
@@ -37,20 +39,27 @@ public class MenuScreen extends ScreenAdapter {
         this.uploadScreen = new UploadScreen(game, this);
         shapeRenderer = new ShapeRenderer();
         // initialize default songs
-        songs.add(new SongEntry("NEVADA - VICETONE", "nevada.mp3", "nevada.txt"));
         File assetsDir = new File(System.getProperty("user.dir"));
         File[] files = assetsDir.listFiles();
-        if (files != null) {
+        if (files != null) { 
             for (File file : files) {
-                if (file.getName().endsWith(".mp3") && !file.getName().equals("hit.mp3") && !file.getName().equals("nevada.mp3")) {
+                if (file.getName().endsWith(".mp3") && !file.getName().equals("hit.mp3")) {
                     String songName = file.getName().replace(".mp3", "");
-                    songs.add(new SongEntry(songName));
+                    Mp3File mp3;
+                    try {
+                        mp3 = new Mp3File(file.getPath());
+                        long duration = mp3.getLengthInSeconds();
+                        SongEntry s1 = new SongEntry(songName);
+                        s1.length = duration;
+                        songs.add(s1); // edit to add duration
+                        // System.out.println(songName + ": " + duration);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    
                 }
             }
         }
-    
-
-
     }
 
     public void addSong(SongEntry song) {
