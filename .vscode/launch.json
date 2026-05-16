@@ -8,14 +8,16 @@
             "type": "java",
             "name": "Current File",
             "request": "launch",
-            "mainClass": "${file}"
+            "mainClass": "${file}",
+            "cwd": "${workspaceFolder}/Rhythium X.0/assets",
         },
         {
             "type": "java",
             "name": "Lwjgl3Launcher",
             "request": "launch",
             "mainClass": "com.rhythia.game.lwjgl3.Lwjgl3Launcher",
-            "projectName": "Rhythium X.O-lwjgl3"
+            "projectName": "Rhythium X.O-lwjgl3",
+            "cwd": "${workspaceFolder}/Rhythium X.0/assets"
         }
     ]
 }
