@@ -6,6 +6,7 @@ import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound; // New Import
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
@@ -97,8 +98,18 @@ public class GameplayScreen extends ScreenAdapter {
     public void render(float delta) {
         // TODO show points earned per hit in tile location
         // clear screen
-        Gdx.gl.glClearColor(0.01f, 0.01f, 0.01f, 1);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        //Gdx.gl.glClearColor(0.01f, 0.01f, 0.01f, 1);
+        //Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+        game.batch.begin();
+        game.solidBackground = new Texture(Gdx.files.internal("background1.png"));
+        game.batch.draw(
+            game.solidBackground,
+            0, 
+            0,
+            Gdx.graphics.getWidth(),
+            Gdx.graphics.getHeight()
+       );
 
         // shapeRenderer.begin(ShapeType.Filled);
         
@@ -132,6 +143,8 @@ public class GameplayScreen extends ScreenAdapter {
 
         handleMouseLocking();
         handleSweeperInput();
+
+        game.batch.end();
 
         // grid drawing
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
