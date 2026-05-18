@@ -6,10 +6,13 @@ METAMORPHOSIS 4.txt
 back_on_track_gd.mp3
 back_on_track_gd.txt
 background.png
+background1.png
 chad.mp3
 chad.txt
 hit.mp3
 libgdx.png
+mi.mp3
+mi.txt
 nevada.mp3
 nevada.txt
 play_button.png

@@ -12,6 +12,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -30,14 +31,23 @@ public class MenuScreen extends ScreenAdapter {
     private final float START_Y = 200;
     private final float PADDING = 40;
     private Rectangle uploadButton;
+    private Rectangle settingsButton;
     private UploadScreen uploadScreen;
+    private SettingsScreen settingsScreen;
     private ShapeRenderer shapeRenderer;
+
+    public static float[] colorTheme = {325, 0.15f, 296, 0.50f, 273, 0.84f, 273, 1.00f, 241, 0.98f, 180, 1, 145, 0.60f, 55, 0.80f, 48,0.80f};
+    public static String difficulty = "Easy";
+
+    //TODO add a best score next to each name
+
     public MenuScreen(Main game) {
         this.game = game;
         this.songs = new TreeSet<>();
         this.songBounds = new ArrayList<>();
         this.touchPoint = new Vector3();
         this.uploadScreen = new UploadScreen(game, this);
+        this.settingsScreen = new SettingsScreen(game, this);
         shapeRenderer = new ShapeRenderer();
         // initialize default songs
         File assetsDir = new File(System.getProperty("user.dir"));
@@ -105,7 +115,15 @@ public class MenuScreen extends ScreenAdapter {
             60
         );
 
-       
+       settingsButton = new Rectangle(
+            Gdx.graphics.getWidth() - 200,
+            Gdx.graphics.getHeight() - 80,
+            200,
+            60
+        );
+        // shapeRenderer.begin(ShapeType.Line);
+        // shapeRenderer.rect(settingsButton.x, settingsButton.y, 60, 60);
+        // shapeRenderer.end();
 
         //updateSongBounds();
     }
@@ -147,20 +165,18 @@ public class MenuScreen extends ScreenAdapter {
         game.font.draw(game.batch, "[UPLOAD SONG]", 100, 60);
         //game.font.draw(game.batch, "Tap a song to play", 100, 100);
         
-
-        
-
+        game.font.draw(game.batch, "SETTINGS", settingsButton.x, settingsButton.y + 40);
 
         game.batch.end();
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-        shapeRenderer.setColor(Color.BLUE);
-        for (Rectangle r : songBounds) {
-            shapeRenderer.rect(r.x, r.y, r.width, r.height);
-        }
-        shapeRenderer.end();
+        // shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        // shapeRenderer.setColor(Color.BLUE);
+        // for (Rectangle r : songBounds) {
+        //     shapeRenderer.rect(r.x, r.y, r.width, r.height);
+        // }
+        // shapeRenderer.end();
         // handle input
         if (Gdx.input.justTouched()) {
-            System.out.println(Gdx.input.getX() + ", " + Gdx.input.getY());
+            // System.out.println(Gdx.input.getX() + ", " + Gdx.input.getY());
             touchPoint.set(Gdx.input.getX(), Gdx.input.getY(), 0);
             float flippedY = Gdx.graphics.getHeight() - touchPoint.y;
 
@@ -168,7 +184,7 @@ public class MenuScreen extends ScreenAdapter {
             int index2 = 0;
             for (SongEntry song : songs) {
                 if (songBounds.get(index2).contains(touchPoint.x, flippedY)) {
-                    game.setScreen(new GameplayScreen(game, song));
+                    game.setScreen(new GameplayScreen(game, song, colorTheme, difficulty));
                     System.out.println(song);
                     return;
                 }
@@ -177,6 +193,11 @@ public class MenuScreen extends ScreenAdapter {
 
             if(uploadButton.contains(new Vector2(touchPoint.x, flippedY))){
                 game.setScreen(uploadScreen);
+                return;
+            }
+            
+            if(settingsButton.contains(new Vector2(touchPoint.x, flippedY))){
+                game.setScreen(settingsScreen);
                 return;
             }
             

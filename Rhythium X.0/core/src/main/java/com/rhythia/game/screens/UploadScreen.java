@@ -49,7 +49,7 @@ public class UploadScreen extends ScreenAdapter{
         Gdx.gl.glClearColor(0.01f, 0.01f, 0.01f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-         if (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.ESCAPE)) {
+        if (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.ESCAPE)) {
             
             game.setScreen(new MenuScreen(game));
             return;

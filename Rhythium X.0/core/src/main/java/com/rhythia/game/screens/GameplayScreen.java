@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.rhythia.game.Main;
 
@@ -27,27 +28,32 @@ public class GameplayScreen extends ScreenAdapter {
     private Rectangle[] gridCells = new Rectangle[9];
     private Rectangle[] spawnCells = new Rectangle[9];
     private Array<Note> allNotes = new Array<>();
-    private float[] allColors = {325, 0.15f, 296, 0.50f, 273, 0.84f, 273, 1.00f, 241, 0.98f, 180, 1, 145, 0.60f, 55, 0.80f, 48, 0.80f};
-    // colors, respectively: pale pink, neon pink, purple, deep violet, deep blue, cyan, mint green, neon yellow, neon yellow 2
+    private float[] allColors;
     private float gridSize = 600;
     private float gridX, gridY;
+    private Vector3 touchPoint;
 
     // changeable settings
     private final float APPROACH_TIME = 1.4f;
     private final float FADE_IN_DURATION = 0.5f;
     private final float PUSHBACK = 0.94f;
     private final float SPAWN_SCALE = 0.10f;
-    private final float HIT_WINDOW = 0.06f; // original: 0.12f
+    private float HIT_WINDOW = 0.06f; // original: 0.12f
 
     /**
      * Constructs a GameplayScreen
      * @param game - initializes game
      */
-    public GameplayScreen(Main game, SongEntry entry) {
+    public GameplayScreen(Main game, SongEntry entry, float[] theme, String difficulty) {
         this.game = game;
         this.entry = entry; 
         this.shapeRenderer = new ShapeRenderer();
         this.duration = entry.length;
+        this.allColors = theme;
+        this.touchPoint = new Vector3();
+        if (difficulty.equalsIgnoreCase("Easy")) HIT_WINDOW = 0.06f;
+        else if (difficulty.equalsIgnoreCase("Medium")) HIT_WINDOW = 0.03f;
+        else if (difficulty.equalsIgnoreCase("Hard")) HIT_WINDOW = 0.01f;
     }
 
     @Override
@@ -84,19 +90,8 @@ public class GameplayScreen extends ScreenAdapter {
         hitSound = Gdx.audio.newSound(Gdx.files.internal("hit.mp3"));
     }
 
-    /**
-     * Shows the game animation
-     * 1. Clears screen
-     * 2. Enables note transparency
-     * 3. Handles escape
-     * 4. Gets songTimer
-     * 5. Draws grid
-     * 6. Draws notes
-     * 7. Displays statistics
-     */
     @Override
     public void render(float delta) {
-        // TODO show points earned per hit in tile location
         // clear screen
         //Gdx.gl.glClearColor(0.01f, 0.01f, 0.01f, 1);
         //Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
@@ -111,25 +106,27 @@ public class GameplayScreen extends ScreenAdapter {
             Gdx.graphics.getHeight()
        );
 
-        // shapeRenderer.begin(ShapeType.Filled);
-        
-        // list.updateStars(delta);
-        // for (Star s : list.stars) {
-        //     shapeRenderer.setColor(s.color);
-        //     shapeRenderer.circle(s.x, s.y, s.size, 32);
-        // }
-        // list.updateTrailStars(delta);
-        // for (Star s : list.trailStars) {
-        //     shapeRenderer.setColor(s.color);
-        //     shapeRenderer.triangle(s.x - s.size/2, s.y, s.x + s.size/2, s.y, s.x, s.y + s.length);
-        //     shapeRenderer.circle(s.x, s.y, s.size);
-        // }
-        // // shapeRenderer.triangle(0, 50, 150, 50, 100, 100);
-        // shapeRenderer.end();
+       if (!song.isPlaying()) {
+            Rectangle rec = new Rectangle(895.375f, 500, 200, 60); //958.375, 540
+            game.font.draw(game.batch, "Return", 895.375f, 560);
+            // GlyphLayout layout = new GlyphLayout();
+            // layout.setText(game.font, "Return");
+            // System.out.println(958.375 - layout.width/2);
+            // System.out.println(540-layout.height/2);
 
-        // enables middle of notes to be transparent
-        // Gdx.gl.glEnable(GL20.GL_BLEND);
-        // Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+            if (Gdx.input.justTouched()) {
+                // System.out.println(Gdx.input.getX() + ", " + Gdx.input.getY());
+                touchPoint.set(Gdx.input.getX(), Gdx.input.getY(), 0);
+                float flippedY = Gdx.graphics.getHeight() - touchPoint.y;
+                if (rec.contains(touchPoint.x, flippedY)) {
+                    if (song != null) { song.stop(); song.dispose(); }
+                    game.batch.end();
+                    game.setScreen(new MenuScreen(game));
+                    return;
+                }
+            }
+        }
+        game.batch.end();
 
         // handle escape
         if (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.ESCAPE)) {
@@ -143,8 +140,6 @@ public class GameplayScreen extends ScreenAdapter {
 
         handleMouseLocking();
         handleSweeperInput();
-
-        game.batch.end();
 
         // grid drawing
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
@@ -165,7 +160,7 @@ public class GameplayScreen extends ScreenAdapter {
 
         boolean a = true;
         Note n1 = null; Note n2 = null; 
-        double addedPoints = 0;
+        int addedPoints = 0;
         for (int k = 0; k < allNotes.size; k++) {
             Note n = allNotes.get(k);
             float timeUntilHit = n.hitTime - songTimer;
@@ -186,11 +181,16 @@ public class GameplayScreen extends ScreenAdapter {
             if (timeUntilHit < -HIT_WINDOW && !n.hit) {
                 n.passed = true;
                 missedNotes++;
-                displayJudgement("MISS", songTimer - n.hitTime);
+                displayJudgement("MISS", songTimer - n.hitTime, 0, n);
             }
             else if (timeUntilHit < -HIT_WINDOW && n.hit) {
                 n.passed = true;
-                displayJudgement(n.rating, songTimer - n.hitTime);
+                float judgement = 0.5f;
+                if (n.rating.equalsIgnoreCase("PERFECT!")) judgement = 1.0f;
+                else if (n.rating.equalsIgnoreCase("GREAT!")) judgement = 0.7f;
+                addedPoints = (int) (300 * judgement * (1 + streak * 0.1));
+                points += addedPoints;
+                displayJudgement(n.rating, songTimer - n.hitTime, addedPoints, n);
             }
 
             // shows all unpassed notes
@@ -198,11 +198,6 @@ public class GameplayScreen extends ScreenAdapter {
             if (n.passed) {
                 if (n.hit) {
                     if (HP < 6) HP += 0.5;
-                    float judgement = 0.5f;
-                    if (n.rating.equalsIgnoreCase("PERFECT!")) judgement = 1.0f;
-                    else if (n.rating.equalsIgnoreCase("GREAT!")) judgement = 0.7f;
-                    addedPoints = 300 * judgement * (1 + streak * 0.1);
-                    points += addedPoints;
                     streak++;
                 }
                 else if (!n.hit) {
@@ -225,12 +220,13 @@ public class GameplayScreen extends ScreenAdapter {
             float timeUntilHit = n.hitTime - songTimer;
 
             // hit sound when touch
-            if (hitSound != null && n.hit && timeUntilHit == 0 && !n.playedSound) {
+            if (hitSound != null && n.hit && timeUntilHit <= 0.00000001 && !n.playedSound) {
                 hitSound.play(1.0f); // Volume 100%
                 // System.out.println("Played sound!");
                 n.playedSound = true;
             }
             // shows approaching notes within approach interval
+            /* TODO if you want to increase acceleration, cut approach time, speed stuff up */
             if (!n.hit && !n.passed && timeUntilHit < APPROACH_TIME) {
                 float rawProg = 1.0f - (timeUntilHit / APPROACH_TIME);
                 // float alpha = Math.min((APPROACH_TIME - timeUntilHit) / FADE_IN_DURATION, 1.0f);
@@ -263,7 +259,10 @@ public class GameplayScreen extends ScreenAdapter {
         }
         shapeRenderer.end();
         
-        // if (HP <= 0) game.batch.end(); // CHANGE TO END SCREEN, THIS CLOSES WHOLE APP
+        // if (HP <= 0) { //TODO uncomment when game is finished, this is the 0-hp consequence
+        // game.setScreen(new MenuScreen(game));
+        // return;
+        // }
         displayStats(i, missedNotes, streak, HP, points, color);
     }
 
@@ -353,7 +352,7 @@ public class GameplayScreen extends ScreenAdapter {
         return center;
     }
 
-    private void displayJudgement(String judgement, float timeSinceHit)
+    private void displayJudgement(String judgement, float timeSinceHit, double points, Note n)
     {
         // NOTE: for setColor(), divide all r,g,b values by 255f for wanted result, or will result in white color
         float alpha = 1 - timeSinceHit / 0.8f; // stuff disappears when alpha > 0.8f
@@ -385,7 +384,11 @@ public class GameplayScreen extends ScreenAdapter {
         // draw the image, center = 
         GlyphLayout layout = new GlyphLayout();
         layout.setText(game.font, judgement);
+        float x = gridCells[n.cell].x + gridCells[n.cell].width / 2;
+        float y = gridCells[n.cell].y + gridCells[n.cell].height / 2;
         game.font.draw(game.batch, judgement, 958.375f - layout.width/2, 540 + yOffset); // center ~ 958.375, 540
+        game.font.getData().setScale(0.20f);
+        game.font.draw(game.batch, "+" + points, x, y); // center ~ 958.375, 540
         // change colors + size + whatnot back to normal
         game.font.setColor(Color.WHITE);
         game.font.getData().setScale(1);
@@ -408,9 +411,9 @@ public class GameplayScreen extends ScreenAdapter {
                     else n.rating = "GOOD!";
 
                     // hit sound when touch
-                    if (hitSound != null) {
-                        hitSound.play(1.0f); // Volume 100%
-                    }
+                    // if (hitSound != null) {
+                    //     hitSound.play(1.0f); // Volume 100%
+                    // }
 
                     // System.out.println("hit cell " + n.cell);
                     break;
