@@ -134,7 +134,7 @@ public class MenuScreen extends ScreenAdapter {
         // Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         game.batch.begin();
-        game.solidBackground = new Texture(Gdx.files.internal("background.png"));
+        game.solidBackground = new Texture(Gdx.files.internal("background2.jpg"));
         game.batch.draw(
             game.solidBackground,
             0, 

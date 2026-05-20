@@ -97,7 +97,7 @@ public class GameplayScreen extends ScreenAdapter {
         //Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         game.batch.begin();
-        game.solidBackground = new Texture(Gdx.files.internal("background1.png"));
+        game.solidBackground = new Texture(Gdx.files.internal("background1.jpg"));
         game.batch.draw(
             game.solidBackground,
             0, 
@@ -324,7 +324,7 @@ public class GameplayScreen extends ScreenAdapter {
         displayStatsHelper("NOTES", notes, missC - layout.width/2f, 390, layout);
         float xCenter = (gridX + (gridX + gridSize))/2f;
         layout.setText(game.font, entry.title);
-        displayStatsHelper(entry.title, time, xCenter - layout.width/2f, 970, layout);
+        displayStatsHelper(entry.title, time, xCenter - layout.width/2f, 910, layout);
         // System.out.println(xCenter);
         layout.setText(game.font, "POINTS");
         displayStatsHelper("POINTS", points + "", accC - layout.width/2f, 560, layout);
@@ -333,7 +333,7 @@ public class GameplayScreen extends ScreenAdapter {
         layout.setText(game.font, streak + "x");
         game.font.draw(game.batch, streak + "x", accC - layout.width/2f, 710);
 
-        game.font.setColor(Color.WHITE);
+        game.font.setColor(Color.GREEN);
         game.batch.end();
     }
 
