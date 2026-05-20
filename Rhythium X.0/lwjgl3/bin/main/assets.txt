@@ -3,13 +3,20 @@ Crystal Castles - Vanished.txt
 Fonts/abel-regular.ttf
 METAMORPHOSIS 4.mp3
 METAMORPHOSIS 4.txt
+Robert Miles - Children [Dream Version] 4.mp3
+Robert Miles - Children [Dream Version] 4.txt
 back_on_track_gd.mp3
 back_on_track_gd.txt
 background.png
+background1.png
 chad.mp3
 chad.txt
 hit.mp3
 libgdx.png
+meaningful love (slowed instrumental).mp3
+meaningful love (slowed instrumental).txt
+mi.mp3
+mi.txt
 nevada.mp3
 nevada.txt
 play_button.png
