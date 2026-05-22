@@ -38,7 +38,7 @@ public class MenuScreen extends ScreenAdapter {
 
     public static float[] colorTheme = {325, 0.15f, 296, 0.50f, 273, 0.84f, 273, 1.00f, 241, 0.98f, 180, 1, 145, 0.60f, 55, 0.80f, 48,0.80f};
     public static String difficulty = "Easy";
-
+    public static String cursor = "cursor1";
     //TODO add a best score next to each name
 
     public MenuScreen(Main game) {
@@ -148,7 +148,7 @@ public class MenuScreen extends ScreenAdapter {
         game.font.draw(game.batch, "RHYTHIUM", 100, Gdx.graphics.getHeight() - 50);
 
         // Draw all songs
-        game.font.getData().setScale(1f * 2/songs.size()); // scale font based on number of songs
+        game.font.getData().setScale(0.7f * 2/songs.size()); // scale font based on number of songs
         buttonHeight = game.font.getCapHeight();
         int index = 1;
         //System.out.println(songs);
@@ -161,7 +161,7 @@ public class MenuScreen extends ScreenAdapter {
 
         updateSongBounds(game.font.getCapHeight());
         
-        game.font.getData().setScale(0.4f);
+        game.font.getData().setScale(0.3f);
         game.font.draw(game.batch, "[UPLOAD SONG]", 100, 60);
         //game.font.draw(game.batch, "Tap a song to play", 100, 100);
         
@@ -184,7 +184,7 @@ public class MenuScreen extends ScreenAdapter {
             int index2 = 0;
             for (SongEntry song : songs) {
                 if (songBounds.get(index2).contains(touchPoint.x, flippedY)) {
-                    game.setScreen(new GameplayScreen(game, song, colorTheme, difficulty));
+                    game.setScreen(new GameplayScreen(game, song, colorTheme, difficulty, cursor));
                     System.out.println(song);
                     return;
                 }

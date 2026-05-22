@@ -40,11 +40,14 @@ public class GameplayScreen extends ScreenAdapter {
     private final float SPAWN_SCALE = 0.10f;
     private float HIT_WINDOW = 0.06f; // original: 0.12f
 
+    private String cursor = "cursor1";
+    private Texture cursorTexture;
+    private static final float CURSOR_SIZE = 48f;
     /**
      * Constructs a GameplayScreen
      * @param game - initializes game
      */
-    public GameplayScreen(Main game, SongEntry entry, float[] theme, String difficulty) {
+    public GameplayScreen(Main game, SongEntry entry, float[] theme, String difficulty, String cursor) {
         this.game = game;
         this.entry = entry; 
         this.shapeRenderer = new ShapeRenderer();
@@ -52,20 +55,24 @@ public class GameplayScreen extends ScreenAdapter {
         this.allColors = theme;
         this.touchPoint = new Vector3();
         if (difficulty.equalsIgnoreCase("Easy")) HIT_WINDOW = 0.06f;
-        else if (difficulty.equalsIgnoreCase("Medium")) HIT_WINDOW = 0.03f;
-        else if (difficulty.equalsIgnoreCase("Hard")) HIT_WINDOW = 0.01f;
+        else if (difficulty.equalsIgnoreCase("Medium")) HIT_WINDOW = 0.05f;
+        else if (difficulty.equalsIgnoreCase("Hard")) HIT_WINDOW = 0.03f;
+        this.cursor = cursor;
     }
 
     @Override
     public void show() {
+        
         Gdx.input.setInputProcessor(null);
-        Gdx.input.setCursorCatched(false);
+        Gdx.input.setCursorCatched(true);
 
         // Gdx.gl.glEnable(GL20.GL_BLEND);
         // Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 
         //0 1 2
         //3 4 5
+
+        cursorTexture = new Texture(Gdx.files.internal(cursor + ".png"));
         gridX = (Gdx.graphics.getWidth() - gridSize) / 2;
         gridY = (Gdx.graphics.getHeight() - gridSize) / 2;
         float cellSize = gridSize / 3;
@@ -74,7 +81,7 @@ public class GameplayScreen extends ScreenAdapter {
         float spawnX = (Gdx.graphics.getWidth() - spawnGridSize) / 2;
         float spawnY = (Gdx.graphics.getHeight() - spawnGridSize) / 2;
         float spawnCellSize = spawnGridSize / 3;
-
+        
         for (int i = 0; i < 9; i++) {
             gridCells[i] = new Rectangle(gridX + ((i % 3) * cellSize), gridY + ((i / 3) * cellSize), cellSize, cellSize);
             spawnCells[i] = new Rectangle(spawnX + ((i % 3) * spawnCellSize), spawnY + ((i / 3) * spawnCellSize), spawnCellSize, spawnCellSize);
@@ -131,6 +138,7 @@ public class GameplayScreen extends ScreenAdapter {
         // handle escape
         if (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.ESCAPE)) {
             if (song != null) { song.stop(); song.dispose(); }
+            Gdx.input.setCursorCatched(false);
             game.setScreen(new MenuScreen(game));
             return;
         }
@@ -177,8 +185,8 @@ public class GameplayScreen extends ScreenAdapter {
             } else {
                 n.isHittable = false;
             }
-
-            if (timeUntilHit < -HIT_WINDOW && !n.hit) {
+            //
+            if (timeUntilHit < -HIT_WINDOW+0.1 && !n.hit) {
                 n.passed = true;
                 missedNotes++;
                 displayJudgement("MISS", songTimer - n.hitTime, 0, n);
@@ -230,7 +238,7 @@ public class GameplayScreen extends ScreenAdapter {
             if (!n.hit && !n.passed && timeUntilHit < APPROACH_TIME) {
                 float rawProg = 1.0f - (timeUntilHit / APPROACH_TIME);
                 // float alpha = Math.min((APPROACH_TIME - timeUntilHit) / FADE_IN_DURATION, 1.0f);
-                float easedProg = (float) Math.pow(rawProg * 1.001, 3); //original: rawProg * PUSHBACK
+                float easedProg = (float) Math.pow(rawProg * 1.02, 4); //original: rawProg * PUSHBACK
 
                 float startCX = spawnCells[n.cell].x + spawnCells[n.cell].width / 2;
                 float startCY = spawnCells[n.cell].y + spawnCells[n.cell].height / 2;
@@ -254,6 +262,7 @@ public class GameplayScreen extends ScreenAdapter {
                 // mimicking 3D, the rectangle grows larger as it approaches approachtime
                 int thickness = (int) (curSize / 6); //timeuntilhit is default < 1
                 //
+
                 drawThickRect(curX - curSize / 2, curY - curSize / 2, curSize, curSize, thickness);
             }
         }
@@ -263,6 +272,7 @@ public class GameplayScreen extends ScreenAdapter {
         // game.setScreen(new MenuScreen(game));
         // return;
         // }
+        drawCursor();
         displayStats(i, missedNotes, streak, HP, points, color);
     }
 
@@ -406,7 +416,9 @@ public class GameplayScreen extends ScreenAdapter {
 
                     // if within certain range --> perfect, or blah blah
                     float timeUntilHit = n.hitTime - songTimer;
-                    if (timeUntilHit < HIT_WINDOW * 0.1) n.rating = "PERFECT!";
+                    // System.out.println(timeUntilHit);
+                    // System.out.println(HIT_WINDOW*0.25);
+                    if (timeUntilHit < HIT_WINDOW * 0.25) n.rating = "PERFECT!";
                     else if (timeUntilHit < HIT_WINDOW * 0.5) n.rating = "GREAT!";
                     else n.rating = "GOOD!";
 
@@ -489,8 +501,19 @@ public class GameplayScreen extends ScreenAdapter {
 
     @Override
     public void dispose() {
+        Gdx.input.setCursorCatched(true);
         if (song != null) song.dispose();
         if (hitSound != null) hitSound.dispose(); // reset song
+        if (cursorTexture != null) cursorTexture.dispose();
         shapeRenderer.dispose();
+    }
+    private void drawCursor() {
+        float mx = Gdx.input.getX();
+        float my = Gdx.graphics.getHeight() - Gdx.input.getY();
+        float half = CURSOR_SIZE / 2f;
+
+        game.batch.begin();
+        game.batch.draw(cursorTexture, mx - half, my - half, CURSOR_SIZE, CURSOR_SIZE);
+        game.batch.end();
     }
 }

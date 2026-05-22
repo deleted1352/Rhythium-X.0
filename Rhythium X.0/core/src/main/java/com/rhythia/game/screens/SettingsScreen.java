@@ -21,9 +21,10 @@ public class SettingsScreen extends ScreenAdapter{
     private ArrayList<Object> colorPatterns;
     private ArrayList<Rectangle> colorBounds;
     private ArrayList<Rectangle> diffBounds;
+    private ArrayList<Rectangle> cursorBounds;
     private static String selectedC = "Standard";
     private static String difficulty = "Easy";
-
+    private static String cursor = "cursor1";
     private ShapeRenderer shapeRenderer;
     private int gridLength = 1200;
     private int gridWidth = 600;
@@ -46,6 +47,7 @@ public class SettingsScreen extends ScreenAdapter{
         colorPatterns = new ArrayList<>();
         colorBounds = new ArrayList<>();
         diffBounds = new ArrayList<>();
+        cursorBounds = new ArrayList<>();
         initializeColor();
     }
     
@@ -57,6 +59,10 @@ public class SettingsScreen extends ScreenAdapter{
 
         for (int i = 0; i < 3; i++) {
             diffBounds.add(new Rectangle(gridX + 700, gridY + gridWidth - 150 - 30 * (i + 1), 200, 25));
+        }
+
+        for (int i = 6; i < 9; i++) {
+            cursorBounds.add(new Rectangle(gridX + 700, gridY + gridWidth - 150 - 30 * (i + 1), 200, 25));
         }
     }
 
@@ -93,6 +99,10 @@ public class SettingsScreen extends ScreenAdapter{
         game.font.draw(game.batch, "Easy", gridX + 700, gridY + gridWidth - 150 - 30 * (0));
         game.font.draw(game.batch, "Medium", gridX + 700, gridY + gridWidth - 150 - 30 * (1));
         game.font.draw(game.batch, "Hard", gridX + 700, gridY + gridWidth - 150 - 30 * (2));
+
+        game.font.draw(game.batch, "Cursor 1", gridX + 700, gridY + gridWidth - 150 - 30 * (6));
+        game.font.draw(game.batch, "Cursor 2", gridX + 700, gridY + gridWidth - 150 - 30 * (7));
+        game.font.draw(game.batch, "Cursor 3", gridX + 700, gridY + gridWidth - 150 - 30 * (8));
         game.batch.end();
 
         // shapeRenderer.end();
@@ -136,12 +146,26 @@ public class SettingsScreen extends ScreenAdapter{
                 j++;
 
             }
+
+            int k = 0;
+            for (Rectangle r : cursorBounds) {
+                if (r.contains(touchPoint.x, flippedY)) {
+                    if (k == 0) cursor = "cursor1";
+                    if (k == 1) cursor = "cursor2";
+                    if (k == 2) cursor = "cursor3";
+                    //System.out.println(cursor);
+                    MenuScreen.cursor = cursor;
+                }
+                k++;
+
+            }
         }
 
         game.batch.begin();
         game.font.getData().setScale(0.5f);
         game.font.draw(game.batch, "Color Theme: " + selectedC, gridX + 50, gridY + gridWidth - 50);
         game.font.draw(game.batch, "Difficulty: " + difficulty, gridX + 700, gridY + gridWidth - 50);
+        game.font.draw(game.batch, "Cursor: " + cursor, gridX + 700, gridY + gridWidth - 150 - 30 * (3));
         game.batch.end();
     }
         // private void handleMouseLocking() {
