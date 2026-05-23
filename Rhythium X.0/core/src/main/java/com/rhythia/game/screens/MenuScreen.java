@@ -6,11 +6,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g3d.particles.values.MeshSpawnShapeValue.Triangle;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Rectangle;
@@ -32,9 +34,13 @@ public class MenuScreen extends ScreenAdapter {
     private final float PADDING = 40;
     private Rectangle uploadButton;
     private Rectangle settingsButton;
+    private Polygon nextPage;
+    private Polygon prevPage;
     private UploadScreen uploadScreen;
     private SettingsScreen settingsScreen;
     private ShapeRenderer shapeRenderer;
+    private static int pageNumber = 1;
+    private int songPerPage = 30;
 
     public static float[] colorTheme = {325, 0.15f, 296, 0.50f, 273, 0.84f, 273, 1.00f, 241, 0.98f, 180, 1, 145, 0.60f, 55, 0.80f, 48,0.80f};
     public static String difficulty = "Easy";
@@ -94,6 +100,7 @@ public class MenuScreen extends ScreenAdapter {
         int index = 0;
         int count = 0;
         for (SongEntry song : songs) {
+            if (index > songPerPage-1) return;
             float yPos = START_Y + (count * (buttonHeight + PADDING));
             Rectangle bounds = new Rectangle(100 + 500 * (index/10), Gdx.graphics.getHeight() - yPos - buttonHeight, buttonWidth, buttonHeight);
             songBounds.add(bounds);
@@ -105,6 +112,16 @@ public class MenuScreen extends ScreenAdapter {
             index++;
             count++;
         }
+    }
+
+    private void nextPage()
+    {
+        pageNumber++;
+    }
+
+    private void previousPage()
+    {
+        //
     }
 
 
@@ -126,6 +143,16 @@ public class MenuScreen extends ScreenAdapter {
             200,
             60
         );
+
+        float d = Gdx.graphics.getHeight();
+        if (pageNumber * songPerPage + 1 < songs.size()) {
+            float[] vertices1 = {900f, d - 100f, 800f, d - 50f, 800f, d - 150f};
+            nextPage = new Polygon(vertices1); 
+        }
+        if (pageNumber > 1) {
+            float[] vertices2 = {600, d - 100f, 700f, d - 50f, 700f, d - 150f};
+            prevPage = new Polygon(vertices2);
+        }
     }
 
     @Override
@@ -150,18 +177,28 @@ public class MenuScreen extends ScreenAdapter {
         // Draw all songs
         game.font.getData().setScale(0.2f); // scale font based on number of songs
         buttonHeight = game.font.getCapHeight();
-        int index = 1;
-        int count = 1;
+        int index = 1; // for keeping track of songs per page
+        int count = 1; // for adjusting y
+        int index1 = 1; // for adjusting x
         for (SongEntry song : songs) {
-            //float yPos = START_Y + ((index - 1) * (buttonHeight + PADDING));
-            float yPos = START_Y + ((count - 1) * (buttonHeight + PADDING));
-            game.font.draw(game.batch, index + ". " + song.title, 100 + 500 * ((index-1)/10), Gdx.graphics.getHeight() - yPos);
-            if (count % 10 == 0) {
-                count = 1;
+            if (index <= (pageNumber - 1) * songPerPage) {
                 index++;
                 continue;
             }
+            if (index > (pageNumber) * songPerPage) {
+                break;
+            }
+            //float yPos = START_Y + ((index - 1) * (buttonHeight + PADDING));
+            float yPos = START_Y + ((count - 1) * (buttonHeight + PADDING));
+            game.font.draw(game.batch, index + ". " + song.title, 100 + 500 * ((index1-1)/10), Gdx.graphics.getHeight() - yPos);
+            if (count % 10 == 0) {
+                count = 1;
+                index++;
+                index1++;
+                continue;
+            }
             index++;
+            index1++;
             count++;
         }
 
@@ -175,6 +212,9 @@ public class MenuScreen extends ScreenAdapter {
 
         game.batch.end();
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        float d = Gdx.graphics.getHeight();
+        if (nextPage != null) shapeRenderer.triangle(900, d - 100, 800, d - 50, 800, d - 150);
+        if (prevPage != null) shapeRenderer.triangle(600, d - 100, 700, d - 50, 700, d - 150);
         shapeRenderer.setColor(Color.BLUE);
         for (Rectangle r : songBounds) {
             shapeRenderer.rect(r.x, r.y, r.width, r.height);
@@ -188,13 +228,20 @@ public class MenuScreen extends ScreenAdapter {
 
             // check which song was clicked
             int index2 = 0;
+            int count2 = 0;
             for (SongEntry song : songs) {
-                if (songBounds.get(index2).contains(touchPoint.x, flippedY)) {
+                if (index2 <= (pageNumber - 1) * songPerPage - 1) {
+                    index2++;
+                    continue;
+                }
+                if (count2 >= songBounds.size()) break;
+                if (songBounds.get(count2).contains(touchPoint.x, flippedY)) {
                     game.setScreen(new GameplayScreen(game, song, colorTheme, difficulty, cursor));
                     System.out.println(song);
                     return;
                 }
                 index2++;
+                count2++;
             }
 
             if(uploadButton.contains(new Vector2(touchPoint.x, flippedY))){
@@ -205,6 +252,22 @@ public class MenuScreen extends ScreenAdapter {
             if(settingsButton.contains(new Vector2(touchPoint.x, flippedY))){
                 game.setScreen(settingsScreen);
                 return;
+            }
+
+            if (nextPage != null) {
+                if(nextPage.contains(new Vector2(touchPoint.x, flippedY))){
+                    pageNumber++;
+                    game.setScreen(new MenuScreen(game));
+                    return; 
+                }
+            }
+
+            if (prevPage != null) {
+                if(prevPage.contains(new Vector2(touchPoint.x, flippedY))){
+                    pageNumber--;
+                    game.setScreen(new MenuScreen(game));
+                    return;
+                }
             }
             
         }
