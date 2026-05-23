@@ -1,18 +1,30 @@
 AIZO - King Gnu.mp3
 AIZO - King Gnu.txt
+Battle Cats - Evangelion Collab Battle Music #4.mp3
+Battle Cats - Evangelion Collab Battle Music #4.txt
+Battle Cats Music - Cats of the Cosmos Theme #3.mp3
+Battle Cats Music - Cats of the Cosmos Theme #3.txt
 Battle Cats Ost - Aku Battle Theme.mp3
 Battle Cats Ost - Aku Battle Theme.txt
 Crystal Castles - Vanished.mp3
 Crystal Castles - Vanished.txt
 Fonts/abel-regular.ttf
+Garfield Song.mp3
+Garfield Song.txt
+Guns N' Roses - Sweet Child O' Mine (Lyrics).mp3
+Guns N' Roses - Sweet Child O' Mine (Lyrics).txt
 Heaven Knows I'm Miserable Now (Trap Remix _ Yeat).mp3
 Heaven Knows I'm Miserable Now (Trap Remix _ Yeat).txt
+JVKE - golden hour (Fujii Kaze Remix).mp3
+JVKE - golden hour (Fujii Kaze Remix).txt
 METAMORPHOSIS 4.mp3
 METAMORPHOSIS 4.txt
 Malcolm Todd - Earrings (Official Visualizer) 4.mp3
 Malcolm Todd - Earrings (Official Visualizer) 4.txt
 Robert Miles - Children [Dream Version] 4.mp3
 Robert Miles - Children [Dream Version] 4.txt
+Stick Season - Noah Kahan.mp3
+Stick Season - Noah Kahan.txt
 You'll Be Back - Hamilton.mp3
 You'll Be Back - Hamilton.txt
 back_on_track_gd.mp3
@@ -21,14 +33,16 @@ background.png
 background1.jpg
 background1.png
 background2.jpg
+bedrott - duskydemise.mp3
+bedrott - duskydemise.txt
 chad.mp3
 chad.txt
 cursor1.png
 cursor2.png
 cursor3.png
-garfield.mp3
-garfield.txt
 hit.mp3
+joyful - chess (slowed, no reverb).mp3
+joyful - chess (slowed, no reverb).txt
 libgdx.png
 meaningful love (slowed instrumental).mp3
 meaningful love (slowed instrumental).txt
