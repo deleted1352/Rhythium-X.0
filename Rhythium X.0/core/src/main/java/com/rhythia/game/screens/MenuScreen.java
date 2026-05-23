@@ -215,10 +215,10 @@ public class MenuScreen extends ScreenAdapter {
         float d = Gdx.graphics.getHeight();
         if (nextPage != null) shapeRenderer.triangle(900, d - 100, 800, d - 50, 800, d - 150);
         if (prevPage != null) shapeRenderer.triangle(600, d - 100, 700, d - 50, 700, d - 150);
-        shapeRenderer.setColor(Color.BLUE);
-        for (Rectangle r : songBounds) {
-            shapeRenderer.rect(r.x, r.y, r.width, r.height);
-        }
+        // shapeRenderer.setColor(Color.BLUE);
+        // for (Rectangle r : songBounds) {
+        //     shapeRenderer.rect(r.x, r.y, r.width, r.height);
+        // }
         shapeRenderer.end();
         // handle input
         if (Gdx.input.justTouched()) {
