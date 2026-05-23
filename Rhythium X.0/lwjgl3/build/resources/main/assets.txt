@@ -20,6 +20,8 @@ chad.txt
 cursor1.png
 cursor2.png
 cursor3.png
+garfield.mp3
+garfield.txt
 hit.mp3
 libgdx.png
 meaningful love (slowed instrumental).mp3

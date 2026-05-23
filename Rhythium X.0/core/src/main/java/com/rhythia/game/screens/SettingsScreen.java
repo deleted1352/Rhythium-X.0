@@ -77,13 +77,20 @@ public class SettingsScreen extends ScreenAdapter{
             return;
         }
 
-        // handleMouseLocking();
+        // Color fontColor = new Color(Color.WHITE);
+        // int patternType = trackCursor(fontColor);
 
         // draw grid for screen
         Rectangle r1 = new Rectangle(gridX - (2 * 0.5f), gridY - (2 * 0.5f), gridLength + 2, gridWidth + 2);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         shapeRenderer.setColor(Color.BLACK); //1,1,1,1
         for (int i = 0; i < 3; i++) {
+            // if (i/2 == patternType) {
+            //     game.font.setColor(fontColor);
+            //     game.font.draw(game.batch, (String) colorPatterns.get(i), gridX + 50, gridY + gridWidth - 150 - 20 * (i));
+            //     game.font.setColor(Color.WHITE);
+            //     continue;
+            // }
             shapeRenderer.rect(gridX - (i * 0.5f), gridY - (i * 0.5f), gridLength + i, gridWidth + i);
         }
         shapeRenderer.end();
@@ -168,29 +175,32 @@ public class SettingsScreen extends ScreenAdapter{
         game.font.draw(game.batch, "Cursor: " + cursor, gridX + 700, gridY + gridWidth - 150 - 30 * (3));
         game.batch.end();
     }
-        // private void handleMouseLocking() {
-    //     int mx = Gdx.input.getX();
-    //     int my = Gdx.input.getY();
-    //     float screenGridTop = Gdx.graphics.getHeight() - (gridY + gridLength);
-    //     float screenGridBottom = Gdx.graphics.getHeight() - gridY;
-    //     int wx = mx, wy = my;
-    //     boolean warp = false;
-    //     if (mx < gridX) { wx = (int)gridX; warp = true; }
-    //     if (mx > gridX + gridWidth) { wx = (int)(gridX + gridWidth); warp = true; }
-    //     if (my < screenGridTop) { wy = (int)screenGridTop; warp = true; }
-    //     if (my > screenGridBottom) { wy = (int)screenGridBottom; warp = true; }
-    //     if (warp) Gdx.input.setCursorPosition(wx, wy);
-    // }
-
-    // private void handleSweeperInput() {
+    
+    // private int trackCursor(Color c) {
+    //     //TODO make sure all patterns are able to be hovered over
     //     float mx = Gdx.input.getX();
     //     float my = Gdx.graphics.getHeight() - Gdx.input.getY();
+    //     int i = 1;
     //     for (Rectangle r : colorBounds) {
     //         if (r.contains(mx, my)) {
-    //             //
+    //             if (!hovering.contains((String) colorPatterns.get(i-1))) {// if just began hoving
+    //                 hovering = (String) colorPatterns.get(i-1);
+    //                 timer = 0;
+    //             }
+    //             float[] cTheme = (float[]) colorPatterns.get(i);
+    //             int i1 = (int) timer % cTheme.length;
+    //             int i2 = (i1 + 1) % cTheme.length;
+    //             c.set(playColors(timer, cTheme, i1, i2));
+    //             timer += Gdx.graphics.getDeltaTime();
+    //             return i;
     //         }
+    //         i+=2;// alternates from title to pattern
     //     }
+    //     hovering = "none";
+    //     c.set(Color.WHITE);
+    //     return colorBounds.size() + 1;
     // }
+
      private void initializeColor()
     {
         float[] standard = {325, 0.15f, 296, 0.50f, 273, 0.84f, 273, 1.00f, 241, 0.98f, 180, 1, 145, 0.60f, 55, 0.80f, 48,0.80f};
@@ -235,8 +245,19 @@ public class SettingsScreen extends ScreenAdapter{
         }
     }
     
-    public void playColors(int index)
-    {
-        //
-    }
+    // private Color playColors(float deltaTime, float[] pattern, int i1, int i2)
+    // {
+    //     //timer (import)
+    //     //TODO fix playColors in the sense that its not smoothly transitioning after first color
+    //     Color c1 = new Color().fromHsv(pattern[i1], pattern[i1+1], 0.9f);
+    //     Color c2 = new Color().fromHsv(pattern[i2], pattern[i2+1], 0.9f);
+    //     float interTime = 1;
+    //     float deltaTR = (c2.r - c1.r)/interTime;
+    //     float deltaTG = (c2.g - c1.g)/interTime;
+    //     float deltaTB = (c2.b - c1.b)/interTime;
+    //     float deltaCR = (deltaTime - i1/2) * deltaTR;
+    //     float deltaCG = (deltaTime - i1/2) * deltaTG;
+    //     float deltaCB = (deltaTime - i1/2) * deltaTB;
+    //     return new Color(c1.r + deltaCR, c1.g + deltaCG, c1.b + deltaCB, 0.9f);
+    // }
 }

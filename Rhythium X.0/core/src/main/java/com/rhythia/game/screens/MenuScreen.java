@@ -27,7 +27,7 @@ public class MenuScreen extends ScreenAdapter {
     private ArrayList<Rectangle> songBounds;
     private Vector3 touchPoint;
     private float buttonHeight = 80;
-    private float buttonWidth = 800;
+    private float buttonWidth = 500;
     private final float START_Y = 200;
     private final float PADDING = 40;
     private Rectangle uploadButton;
@@ -90,18 +90,23 @@ public class MenuScreen extends ScreenAdapter {
     
     private void updateSongBounds(float buttonHeight) {      
         songBounds.clear();
-        
+       
         int index = 0;
+        int count = 0;
         for (SongEntry song : songs) {
-            float yPos = START_Y + (index * (buttonHeight + PADDING));
-            Rectangle bounds = new Rectangle(100, Gdx.graphics.getHeight() - yPos - buttonHeight, buttonWidth, buttonHeight);
-            
-            
-            
+            float yPos = START_Y + (count * (buttonHeight + PADDING));
+            Rectangle bounds = new Rectangle(100 + 500 * (index/10), Gdx.graphics.getHeight() - yPos - buttonHeight, buttonWidth, buttonHeight);
             songBounds.add(bounds);
+            if ((count+1) % 10 == 0) {
+                count = 0;
+                index++;
+                continue;
+            }
             index++;
+            count++;
         }
     }
+
 
     
     @Override
@@ -121,11 +126,6 @@ public class MenuScreen extends ScreenAdapter {
             200,
             60
         );
-        // shapeRenderer.begin(ShapeType.Line);
-        // shapeRenderer.rect(settingsButton.x, settingsButton.y, 60, 60);
-        // shapeRenderer.end();
-
-        //updateSongBounds();
     }
 
     @Override
@@ -148,32 +148,38 @@ public class MenuScreen extends ScreenAdapter {
         game.font.draw(game.batch, "RHYTHIUM", 100, Gdx.graphics.getHeight() - 50);
 
         // Draw all songs
-        game.font.getData().setScale(0.7f * 2/songs.size()); // scale font based on number of songs
+        game.font.getData().setScale(0.2f); // scale font based on number of songs
         buttonHeight = game.font.getCapHeight();
         int index = 1;
-        //System.out.println(songs);
+        int count = 1;
         for (SongEntry song : songs) {
             //float yPos = START_Y + ((index - 1) * (buttonHeight + PADDING));
-            float yPos = START_Y + ((index - 1) * (buttonHeight + PADDING));
-            game.font.draw(game.batch, index + ". " + song.title, 100, Gdx.graphics.getHeight() - yPos );
+            float yPos = START_Y + ((count - 1) * (buttonHeight + PADDING));
+            game.font.draw(game.batch, index + ". " + song.title, 100 + 500 * ((index-1)/10), Gdx.graphics.getHeight() - yPos);
+            if (count % 10 == 0) {
+                count = 1;
+                index++;
+                continue;
+            }
             index++;
+            count++;
         }
+
 
         updateSongBounds(game.font.getCapHeight());
         
         game.font.getData().setScale(0.3f);
         game.font.draw(game.batch, "[UPLOAD SONG]", 100, 60);
-        //game.font.draw(game.batch, "Tap a song to play", 100, 100);
         
         game.font.draw(game.batch, "SETTINGS", settingsButton.x, settingsButton.y + 40);
 
         game.batch.end();
-        // shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-        // shapeRenderer.setColor(Color.BLUE);
-        // for (Rectangle r : songBounds) {
-        //     shapeRenderer.rect(r.x, r.y, r.width, r.height);
-        // }
-        // shapeRenderer.end();
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        shapeRenderer.setColor(Color.BLUE);
+        for (Rectangle r : songBounds) {
+            shapeRenderer.rect(r.x, r.y, r.width, r.height);
+        }
+        shapeRenderer.end();
         // handle input
         if (Gdx.input.justTouched()) {
             // System.out.println(Gdx.input.getX() + ", " + Gdx.input.getY());

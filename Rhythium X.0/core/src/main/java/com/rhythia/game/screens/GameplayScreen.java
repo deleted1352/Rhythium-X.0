@@ -116,10 +116,6 @@ public class GameplayScreen extends ScreenAdapter {
        if (!song.isPlaying()) {
             Rectangle rec = new Rectangle(895.375f, 500, 200, 60); //958.375, 540
             game.font.draw(game.batch, "Return", 895.375f, 560);
-            // GlyphLayout layout = new GlyphLayout();
-            // layout.setText(game.font, "Return");
-            // System.out.println(958.375 - layout.width/2);
-            // System.out.println(540-layout.height/2);
 
             if (Gdx.input.justTouched()) {
                 // System.out.println(Gdx.input.getX() + ", " + Gdx.input.getY());
@@ -128,6 +124,7 @@ public class GameplayScreen extends ScreenAdapter {
                 if (rec.contains(touchPoint.x, flippedY)) {
                     if (song != null) { song.stop(); song.dispose(); }
                     game.batch.end();
+                    Gdx.input.setCursorCatched(false);
                     game.setScreen(new MenuScreen(game));
                     return;
                 }
