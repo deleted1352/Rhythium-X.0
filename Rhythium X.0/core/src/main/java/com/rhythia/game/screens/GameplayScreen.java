@@ -5,11 +5,11 @@ import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound; // New Import
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL20;
+// import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
+// import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
@@ -24,6 +24,7 @@ public class GameplayScreen extends ScreenAdapter {
     private ShapeRenderer shapeRenderer;
     private double hit = 0;
     private Long duration;
+    private int points = 0;
 
     private Rectangle[] gridCells = new Rectangle[9];
     private Rectangle[] spawnCells = new Rectangle[9];
@@ -35,8 +36,8 @@ public class GameplayScreen extends ScreenAdapter {
 
     // changeable settings
     private final float APPROACH_TIME = 1.4f;
-    private final float FADE_IN_DURATION = 0.5f;
-    private final float PUSHBACK = 0.94f;
+    // private final float FADE_IN_DURATION = 0.5f;
+    // private final float PUSHBACK = 0.94f;
     private final float SPAWN_SCALE = 0.10f;
     private float HIT_WINDOW = 0.06f; // original: 0.12f
 
@@ -66,12 +67,6 @@ public class GameplayScreen extends ScreenAdapter {
         Gdx.input.setInputProcessor(null);
         Gdx.input.setCursorCatched(true);
 
-        // Gdx.gl.glEnable(GL20.GL_BLEND);
-        // Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-
-        //0 1 2
-        //3 4 5
-
         cursorTexture = new Texture(Gdx.files.internal(cursor + ".png"));
         gridX = (Gdx.graphics.getWidth() - gridSize) / 2;
         gridY = (Gdx.graphics.getHeight() - gridSize) / 2;
@@ -99,9 +94,9 @@ public class GameplayScreen extends ScreenAdapter {
 
     @Override
     public void render(float delta) {
-        // clear screen
-        //Gdx.gl.glClearColor(0.01f, 0.01f, 0.01f, 1);
-        //Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        // clear screen - use for dark bg
+        // Gdx.gl.glClearColor(0.01f, 0.01f, 0.01f, 1);
+        // Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         game.batch.begin();
         game.solidBackground = new Texture(Gdx.files.internal("background1.jpg"));
@@ -125,6 +120,17 @@ public class GameplayScreen extends ScreenAdapter {
                     if (song != null) { song.stop(); song.dispose(); }
                     game.batch.end();
                     Gdx.input.setCursorCatched(false);
+                    for (String s : MenuScreen.bestScores) {
+                        if (s.contains(entry.title)) {
+                            Integer i = Integer.parseInt(s.split("_")[1]);
+                            if (i < points) {
+                                MenuScreen.bestScores.remove(s);
+                                s = entry.title + "_" + points;
+                                MenuScreen.bestScores.add(s);
+                            }
+                            break;
+                        }
+                    }
                     game.setScreen(new MenuScreen(game));
                     return;
                 }
@@ -136,6 +142,17 @@ public class GameplayScreen extends ScreenAdapter {
         if (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.ESCAPE)) {
             if (song != null) { song.stop(); song.dispose(); }
             Gdx.input.setCursorCatched(false);
+            for (String s : MenuScreen.bestScores) {
+                if (s.contains(entry.title)) {
+                    Integer i = Integer.parseInt(s.split("_")[1]);
+                    if (i < points) {
+                        MenuScreen.bestScores.remove(s);
+                        s = entry.title + "_" + points;
+                        MenuScreen.bestScores.add(s);
+                    }
+                    break;
+                }
+            }
             game.setScreen(new MenuScreen(game));
             return;
         }
@@ -161,11 +178,11 @@ public class GameplayScreen extends ScreenAdapter {
 
         // calculating the HP, streak, points
         float HP = 6;
-        int points = 0, streak = 0;
-
+        points = 0;
+        int streak = 0;
+        int addedPoints = 0;
         boolean a = true;
         Note n1 = null; Note n2 = null; 
-        int addedPoints = 0;
         for (int k = 0; k < allNotes.size; k++) {
             Note n = allNotes.get(k);
             float timeUntilHit = n.hitTime - songTimer;

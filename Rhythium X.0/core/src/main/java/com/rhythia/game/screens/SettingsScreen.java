@@ -29,6 +29,8 @@ public class SettingsScreen extends ScreenAdapter{
     private int gridLength = 1200;
     private int gridWidth = 600;
     private int gridX, gridY;
+    private String hovering;
+    private float timer;
     //TODO figure out if APCSA classroom computers have mouse sensitivity settings, otherwise add here
     //TODO design shop/quest screen
     

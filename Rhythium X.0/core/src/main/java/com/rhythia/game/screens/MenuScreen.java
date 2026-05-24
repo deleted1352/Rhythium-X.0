@@ -29,7 +29,7 @@ public class MenuScreen extends ScreenAdapter {
     private ArrayList<Rectangle> songBounds;
     private Vector3 touchPoint;
     private float buttonHeight = 80;
-    private float buttonWidth = 500;
+    private float buttonWidth = 700;
     private final float START_Y = 200;
     private final float PADDING = 40;
     private Rectangle uploadButton;
@@ -40,7 +40,8 @@ public class MenuScreen extends ScreenAdapter {
     private SettingsScreen settingsScreen;
     private ShapeRenderer shapeRenderer;
     private static int pageNumber = 1;
-    private int songPerPage = 30;
+    public static TreeSet<String> bestScores = new TreeSet<>();
+    private int songPerPage = 20;
 
     public static float[] colorTheme = {325, 0.15f, 296, 0.50f, 273, 0.84f, 273, 1.00f, 241, 0.98f, 180, 1, 145, 0.60f, 55, 0.80f, 48,0.80f};
     public static String difficulty = "Easy";
@@ -69,23 +70,33 @@ public class MenuScreen extends ScreenAdapter {
                         SongEntry s1 = new SongEntry(songName);
                         s1.length = duration;
                         songs.add(s1); // edit to add duration
+                        if (bestScores.size() < songs.size()) {
+                            // System.out.println("this ran");
+                            bestScores.add(songName + "_0"); // runs once
+                        }
                         // System.out.println(songName + ": " + duration);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                    
                 }
             }
         }
-    }
+    } 
 
     public void addSong(SongEntry song) {
         songs.add(song);
+        bestScores.add(song.title + "_0");
         //updateSongBounds();
     }
 
     public void removeSong(SongEntry song) {
         songs.remove(song);
+        for (String s : bestScores) {
+            if (s.contains(song.title)) {
+                bestScores.remove(s);
+                break;
+            }
+        }
         //updateSongBounds();
     }
 
@@ -102,7 +113,7 @@ public class MenuScreen extends ScreenAdapter {
         for (SongEntry song : songs) {
             if (index > songPerPage-1) return;
             float yPos = START_Y + (count * (buttonHeight + PADDING));
-            Rectangle bounds = new Rectangle(100 + 500 * (index/10), Gdx.graphics.getHeight() - yPos - buttonHeight, buttonWidth, buttonHeight);
+            Rectangle bounds = new Rectangle(100 + 800 * (index/10), Gdx.graphics.getHeight() - yPos - buttonHeight, buttonWidth, buttonHeight);
             songBounds.add(bounds);
             if ((count+1) % 10 == 0) {
                 count = 0;
@@ -114,18 +125,6 @@ public class MenuScreen extends ScreenAdapter {
         }
     }
 
-    private void nextPage()
-    {
-        pageNumber++;
-    }
-
-    private void previousPage()
-    {
-        //
-    }
-
-
-    
     @Override
     public void show() {
         updateSongBounds(80f);
@@ -146,11 +145,11 @@ public class MenuScreen extends ScreenAdapter {
 
         float d = Gdx.graphics.getHeight();
         if (pageNumber * songPerPage + 1 < songs.size()) {
-            float[] vertices1 = {900f, d - 100f, 800f, d - 50f, 800f, d - 150f};
+            float[] vertices1 = {750, d - 100f, 700, d - 75f, 700, d - 125f};
             nextPage = new Polygon(vertices1); 
         }
         if (pageNumber > 1) {
-            float[] vertices2 = {600, d - 100f, 700f, d - 50f, 700f, d - 150f};
+            float[] vertices2 = {600, d - 100f, 650f, d - 75f, 650f, d - 125f};
             prevPage = new Polygon(vertices2);
         }
     }
@@ -175,12 +174,12 @@ public class MenuScreen extends ScreenAdapter {
         game.font.draw(game.batch, "RHYTHIUM", 100, Gdx.graphics.getHeight() - 50);
 
         // Draw all songs
-        game.font.getData().setScale(0.2f); // scale font based on number of songs
+        game.font.getData().setScale(0.3f); // scale font based on number of songs
         buttonHeight = game.font.getCapHeight();
         int index = 1; // for keeping track of songs per page
         int count = 1; // for adjusting y
         int index1 = 1; // for adjusting x
-        for (SongEntry song : songs) {
+        for (String s : bestScores) {
             if (index <= (pageNumber - 1) * songPerPage) {
                 index++;
                 continue;
@@ -190,7 +189,10 @@ public class MenuScreen extends ScreenAdapter {
             }
             //float yPos = START_Y + ((index - 1) * (buttonHeight + PADDING));
             float yPos = START_Y + ((count - 1) * (buttonHeight + PADDING));
-            game.font.draw(game.batch, index + ". " + song.title, 100 + 500 * ((index1-1)/10), Gdx.graphics.getHeight() - yPos);
+            String[] parts = s.split("_");
+            String score = parts[parts.length-1];
+            String title = index + ". " + s.substring(0, s.indexOf(score) - 1);
+            game.font.draw(game.batch, title + " - " + score, 100 + 800 * ((index1-1)/10), Gdx.graphics.getHeight() - yPos);
             if (count % 10 == 0) {
                 count = 1;
                 index++;
@@ -211,15 +213,19 @@ public class MenuScreen extends ScreenAdapter {
         game.font.draw(game.batch, "SETTINGS", settingsButton.x, settingsButton.y + 40);
 
         game.batch.end();
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         float d = Gdx.graphics.getHeight();
-        if (nextPage != null) shapeRenderer.triangle(900, d - 100, 800, d - 50, 800, d - 150);
-        if (prevPage != null) shapeRenderer.triangle(600, d - 100, 700, d - 50, 700, d - 150);
+        shapeRenderer.setColor(Color.GREEN);
+        if (nextPage != null) shapeRenderer.triangle(750, d - 100f, 700, d - 75f, 700, d - 125f);
+        if (prevPage != null) shapeRenderer.triangle(600, d - 100f, 650f, d - 75f, 650f, d - 125f);
+        shapeRenderer.end();
+        // shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
         // shapeRenderer.setColor(Color.BLUE);
         // for (Rectangle r : songBounds) {
         //     shapeRenderer.rect(r.x, r.y, r.width, r.height);
         // }
-        shapeRenderer.end();
+        // shapeRenderer.end();
+        
         // handle input
         if (Gdx.input.justTouched()) {
             // System.out.println(Gdx.input.getX() + ", " + Gdx.input.getY());

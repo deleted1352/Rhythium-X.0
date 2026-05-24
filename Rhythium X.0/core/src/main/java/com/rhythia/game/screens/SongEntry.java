@@ -1,10 +1,13 @@
 package com.rhythia.game.screens;
 
+import java.util.TreeSet;
+
 public class SongEntry implements Comparable<SongEntry> {
     public String title;
     public String audioFile;
     public String mapFile;
     public Long length;
+    public static TreeSet<String> bestScore;
 
     public SongEntry(String title, String audioFile, String mapFile) {
         this.title = title;
