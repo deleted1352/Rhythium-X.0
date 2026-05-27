@@ -13,7 +13,11 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.rhythia.game.Main;
+
+
+
 
 public class GameplayScreen extends ScreenAdapter {
     private final Main game;
@@ -44,6 +48,10 @@ public class GameplayScreen extends ScreenAdapter {
     private String cursor = "cursor1";
     private Texture cursorTexture;
     private static final float CURSOR_SIZE = 48f;
+
+
+    
+
     /**
      * Constructs a GameplayScreen
      * @param game - initializes game
@@ -89,6 +97,8 @@ public class GameplayScreen extends ScreenAdapter {
         song.setVolume(0.5f);
         song.play();
 
+
+
         hitSound = Gdx.audio.newSound(Gdx.files.internal("hit.mp3"));
     }
 
@@ -107,7 +117,7 @@ public class GameplayScreen extends ScreenAdapter {
             Gdx.graphics.getWidth(),
             Gdx.graphics.getHeight()
        );
-
+    
        if (!song.isPlaying()) {
             Rectangle rec = new Rectangle(895.375f, 500, 200, 60); //958.375, 540
             game.font.draw(game.batch, "Return", 895.375f, 560);
@@ -144,7 +154,8 @@ public class GameplayScreen extends ScreenAdapter {
             Gdx.input.setCursorCatched(false);
             for (String s : MenuScreen.bestScores) {
                 if (s.contains(entry.title)) {
-                    Integer i = Integer.parseInt(s.split("_")[1]);
+                    String[] container = s.split("_");
+                    Integer i = Integer.parseInt(container[container.length-1]);
                     if (i < points) {
                         MenuScreen.bestScores.remove(s);
                         s = entry.title + "_" + points;
@@ -241,8 +252,9 @@ public class GameplayScreen extends ScreenAdapter {
             Note n = allNotes.get(j);
             float timeUntilHit = n.hitTime - songTimer;
 
-            // hit sound when touch
+            // hit sound when touch and shake
             if (hitSound != null && n.hit && timeUntilHit <= 0.00000001 && !n.playedSound) {
+                
                 hitSound.play(1.0f); // Volume 100%
                 // System.out.println("Played sound!");
                 n.playedSound = true;
@@ -513,14 +525,7 @@ public class GameplayScreen extends ScreenAdapter {
         return notes;
     }
 
-    @Override
-    public void dispose() {
-        Gdx.input.setCursorCatched(true);
-        if (song != null) song.dispose();
-        if (hitSound != null) hitSound.dispose(); // reset song
-        if (cursorTexture != null) cursorTexture.dispose();
-        shapeRenderer.dispose();
-    }
+    
     private void drawCursor() {
         float mx = Gdx.input.getX();
         float my = Gdx.graphics.getHeight() - Gdx.input.getY();
@@ -530,4 +535,7 @@ public class GameplayScreen extends ScreenAdapter {
         game.batch.draw(cursorTexture, mx - half, my - half, CURSOR_SIZE, CURSOR_SIZE);
         game.batch.end();
     }
+
+    
 }
+

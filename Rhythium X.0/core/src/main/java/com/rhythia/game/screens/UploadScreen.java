@@ -32,6 +32,15 @@ public class UploadScreen extends ScreenAdapter{
     }
 
     @Override
+    /**
+     * Initializes the grid dimensions and the upload button.
+     *
+     * gridX and gridY read from the user's window, making the grid responsive.
+     * The upload button is initialized as a rectangle. This allows us to later 
+     * read it's position and use built in collision functionality to register clicks 
+     *
+     * 
+     */
     public void show() {
         // setup
         gridX = (Gdx.graphics.getWidth() - gridSize) / 2;
@@ -44,6 +53,15 @@ public class UploadScreen extends ScreenAdapter{
     }
 
     @Override
+    /**
+     * Periodically renders the screen, where clicks are registered.
+     * 
+     * A rectangle is drawn, and then click is checked to be on upload button using collision logic.
+     * If the click was for the upload button, a new window is presented.
+     * The escape key is also handled for exiting back to menu screen.
+     *
+     * @param delta  The time in seconds since last render
+     */
     public void render(float delta) {
         // clear screen
         Gdx.gl.glClearColor(0.01f, 0.01f, 0.01f, 1);
@@ -51,7 +69,7 @@ public class UploadScreen extends ScreenAdapter{
 
         if (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.ESCAPE)) {
             
-            game.setScreen(new MenuScreen(game));
+            game.setScreen(menuScreen);
             return;
         }
 
@@ -61,7 +79,15 @@ public class UploadScreen extends ScreenAdapter{
             //System.out.println(x + "," + y);
 
             //handleUpload(uploadBtn, x, y);
-            handleUpload();
+            float x = Gdx.input.getX();
+            float y = Gdx.graphics.getHeight() - Gdx.input.getY();
+            System.out.println(x + "," + y);
+
+            // Only open file chooser if clicked on button
+            if (uploadBtn.contains(x, y)) {
+                handleUpload();
+            }
+
             
 
         }
@@ -91,6 +117,16 @@ public class UploadScreen extends ScreenAdapter{
         shapeRenderer.dispose();
     }
 
+    /**
+     * Accepts a file, and then calls a python script to get a working SongEntry. 
+     * 
+     * Upload the selected file to assets and read its path. Then, use a ProcessBuilder to execute a 
+     * python script that processes this mp3 file to generate the txt level file. The version of Python
+     * used is found with a helper function. Then, create a SongEntry based on the txt file. 
+     * Add this SongEntry to the MenuScreen's song list
+     *
+     * @param selectedFile the file to be passed into the python script
+     */
     private void handleFile(File selectedFile) {
         File assetsDir = new File(System.getProperty("user.dir")); //idk why user.dir is assets folder, just trial and error
         File projectRoot = assetsDir.getParentFile();
@@ -123,9 +159,7 @@ public class UploadScreen extends ScreenAdapter{
         System.out.println("Script path: " + scriptPath);
         System.out.println("File path for script: " + filePathForScript);
         
-        ///Users/warrensu/Programming/Personal/Rhythium-X.0/Rhythium X.0/assets/core/src/main/java/com/rhythia/game/BeatProcesser.py'
-        ///Users/warrensu/Programming/Personal/Rhythium-X.0/Rhythium X.0/assets/core/src/main/java/com/rhythia/game/BeatProcesser.py
-        ///Users/warrensu/Programming/Personal/Rhythium-X.0/Rhythium X.0/core/src/main/java/com/rhythia/game/BeatProcesser.py
+
         ProcessBuilder pb = new ProcessBuilder(
             findPython(),
             scriptPath,
@@ -163,13 +197,20 @@ public class UploadScreen extends ScreenAdapter{
             ex.printStackTrace();
         }
     }
-    
 
+
+    /**
+     * Opens a file chooser where users upload an MP3 file.
+     * 
+     * 
+     * On file selection, spawns a new thread to process the file without blocking the render thread.
+     * 
+     */
     private void handleUpload() {
 
         choosingFile = true;
 
-        Gdx.graphics.setContinuousRendering(false);
+        Gdx.graphics.setContinuousRendering(true);
 
         SwingUtilities.invokeLater(() -> {
 
@@ -207,7 +248,13 @@ public class UploadScreen extends ScreenAdapter{
         });
     }
     
-
+    /**
+     * Find a working version of python.
+     * 
+     * If the user followed the directions, the path to the virtual environment is used.
+     *
+     * @return The path to a working version of python
+     */
     private String findPython() {
         File cwd = new File(System.getProperty("user.dir"));
         cwd = cwd.getParentFile();
