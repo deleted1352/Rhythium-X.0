@@ -8,6 +8,7 @@ import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
+import com.mpatric.mp3agic.Mp3File;
 import com.rhythia.game.Main;
 
 import java.io.File;
@@ -184,13 +185,19 @@ public class UploadScreen extends ScreenAdapter{
             
             // after processing, add song to menu
             if (exitCode == 0) {
-                String songName = selectedFile.getName();
-                String audioFile = songName;
-                String mapFile = songName.replaceAll("\\.mp3$", ".txt");
-                SongEntry newSong = new SongEntry(songName.replaceAll("\\.mp3$", ""), audioFile, mapFile);
-                menuScreen.addSong(newSong);
-                System.out.println("Song added to menu: " + newSong.title);
-                System.out.println(menuScreen.getSongs());
+                Mp3File mp3;
+                try {
+                    String songName = selectedFile.getName().replaceAll("\\.mp3$", "");
+                    mp3 = new Mp3File(selectedFile.getPath());
+                    long duration = mp3.getLengthInSeconds();
+                    SongEntry s1 = new SongEntry(songName);
+                    s1.length = duration;
+                    menuScreen.addSong(s1);
+                    // System.out.println(songName + ": " + duration);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                // System.out.println(menuScreen.getSongs());
                 //game.setScreen(menuScreen);
             }
         } catch (Exception ex) {

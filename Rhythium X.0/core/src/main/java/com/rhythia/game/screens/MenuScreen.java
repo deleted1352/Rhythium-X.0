@@ -28,26 +28,29 @@ public class MenuScreen extends ScreenAdapter {
     private TreeSet<SongEntry> songs;
     private ArrayList<Rectangle> songBounds;
     private Vector3 touchPoint;
-    private float buttonHeight = 80;
-    private float buttonWidth = 700;
-    private final float START_Y = 200;
-    private final float PADDING = 40;
+    // private float buttonHeight = 80;
+    private static final float buttonWidth = 700;
+    private static final float START_Y = 200;
+    private static final float PADDING = 40;
     private Rectangle uploadButton;
     private Rectangle settingsButton;
-    private Polygon nextPage;
-    private Polygon prevPage;
+    private Polygon nextPageButton;
+    private Polygon prevPageButton;
     private UploadScreen uploadScreen;
     private SettingsScreen settingsScreen;
     private ShapeRenderer shapeRenderer;
     private static int pageNumber = 1;
     public static TreeSet<String> bestScores = new TreeSet<>();
-    private int songPerPage = 20;
+    private final int songPerPage = 20;
 
     public static float[] colorTheme = {325, 0.15f, 296, 0.50f, 273, 0.84f, 273, 1.00f, 241, 0.98f, 180, 1, 145, 0.60f, 55, 0.80f, 48,0.80f};
     public static String difficulty = "Easy";
     public static String cursor = "cursor1";
-    //TODO add a best score next to each name
 
+    /**
+     * Creates a new MenuScreen, putting all song files into a String list
+     * @param game - game
+     */
     public MenuScreen(Main game) {
         this.game = game;
         this.songs = new TreeSet<>();
@@ -71,10 +74,8 @@ public class MenuScreen extends ScreenAdapter {
                         s1.length = duration;
                         songs.add(s1); // edit to add duration
                         if (bestScores.size() < songs.size()) {
-                            // System.out.println("this ran");
                             bestScores.add(songName + "_0"); // runs once
                         }
-                        // System.out.println(songName + ": " + duration);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -83,12 +84,20 @@ public class MenuScreen extends ScreenAdapter {
         }
     } 
 
+    /**
+     * Adds a song to songList, new score to bestScores
+     * @param song - song to be added
+     */
     public void addSong(SongEntry song) {
         songs.add(song);
         bestScores.add(song.title + "_0");
         //updateSongBounds();
     }
 
+    /**
+     * Removes a song from songList and score from bestScores. Likely never called.
+     * @param song - song to be removed
+     */
     public void removeSong(SongEntry song) {
         songs.remove(song);
         for (String s : bestScores) {
@@ -100,11 +109,18 @@ public class MenuScreen extends ScreenAdapter {
         //updateSongBounds();
     }
 
+    /**
+     * Returns songs
+     * @return songs
+     */
     public TreeSet<SongEntry> getSongs() {
         return songs;
     }
 
-    
+    /**
+     * Creates list of rectangles acting as hitboxes for songs
+     * @param buttonHeight - height of each hitbox
+     */
     private void updateSongBounds(float buttonHeight) {      
         songBounds.clear();
        
@@ -125,6 +141,9 @@ public class MenuScreen extends ScreenAdapter {
         }
     }
 
+    /**
+     * Initializes hitboxes for settings, uploads, page-turners, and song choices
+     */
     @Override
     public void show() {
         updateSongBounds(80f);
@@ -146,28 +165,34 @@ public class MenuScreen extends ScreenAdapter {
         float d = Gdx.graphics.getHeight();
         if (pageNumber * songPerPage + 1 < songs.size()) {
             float[] vertices1 = {750, d - 100f, 700, d - 75f, 700, d - 125f};
-            nextPage = new Polygon(vertices1); 
+            nextPageButton = new Polygon(vertices1); 
         }
+        else nextPageButton = null;
         if (pageNumber > 1) {
             float[] vertices2 = {600, d - 100f, 650f, d - 75f, 650f, d - 125f};
-            prevPage = new Polygon(vertices2);
+            prevPageButton = new Polygon(vertices2);
         }
+        else prevPageButton = null;
     }
 
+    /**
+     * Displays song choices, shifts screen if buttons clicked
+     * @param delta - time length for each frame
+     */
     @Override
     public void render(float delta) {
-        // Gdx.gl.glClearColor(0.2f, 0.2f, 0.2f, 1);
-        // Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        Gdx.gl.glClearColor(0.2f, 0.2f, 0.2f, 1);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         game.batch.begin();
-        game.solidBackground = new Texture(Gdx.files.internal("background2.jpg"));
-        game.batch.draw(
-            game.solidBackground,
-            0, 
-            0,
-            Gdx.graphics.getWidth(),
-            Gdx.graphics.getHeight()
-        );        
+        // game.solidBackground = new Texture(Gdx.files.internal("background2.jpg"));
+        // game.batch.draw(
+        //     game.solidBackground,
+        //     0, 
+        //     0,
+        //     Gdx.graphics.getWidth(),
+        //     Gdx.graphics.getHeight()
+        // );        
 
         // Draw title
         game.font.getData().setScale(1);
@@ -175,7 +200,7 @@ public class MenuScreen extends ScreenAdapter {
 
         // Draw all songs
         game.font.getData().setScale(0.3f); // scale font based on number of songs
-        buttonHeight = game.font.getCapHeight();
+        float buttonHeight = game.font.getCapHeight();
         int index = 1; // for keeping track of songs per page
         int count = 1; // for adjusting y
         int index1 = 1; // for adjusting x
@@ -216,8 +241,8 @@ public class MenuScreen extends ScreenAdapter {
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         float d = Gdx.graphics.getHeight();
         shapeRenderer.setColor(Color.GREEN);
-        if (nextPage != null) shapeRenderer.triangle(750, d - 100f, 700, d - 75f, 700, d - 125f);
-        if (prevPage != null) shapeRenderer.triangle(600, d - 100f, 650f, d - 75f, 650f, d - 125f);
+        if (nextPageButton != null) shapeRenderer.triangle(750, d - 100f, 700, d - 75f, 700, d - 125f);
+        if (prevPageButton != null) shapeRenderer.triangle(600, d - 100f, 650f, d - 75f, 650f, d - 125f);
         shapeRenderer.end();
         // shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
         // shapeRenderer.setColor(Color.BLUE);
@@ -242,7 +267,7 @@ public class MenuScreen extends ScreenAdapter {
                 }
                 if (count2 >= songBounds.size()) break;
                 if (songBounds.get(count2).contains(touchPoint.x, flippedY)) {
-                    game.setScreen(new GameplayScreen(game, song, colorTheme, difficulty, cursor));
+                    game.setScreen(new GameplayScreen(game, song, colorTheme, difficulty, cursor, this));
                     System.out.println(song);
                     return;
                 }
@@ -260,16 +285,16 @@ public class MenuScreen extends ScreenAdapter {
                 return;
             }
 
-            if (nextPage != null) {
-                if(nextPage.contains(new Vector2(touchPoint.x, flippedY))){
+            if (nextPageButton != null) {
+                if(nextPageButton.contains(new Vector2(touchPoint.x, flippedY))){
                     pageNumber++;
                     game.setScreen(new MenuScreen(game));
                     return; 
                 }
             }
 
-            if (prevPage != null) {
-                if(prevPage.contains(new Vector2(touchPoint.x, flippedY))){
+            if (prevPageButton != null) {
+                if(prevPageButton.contains(new Vector2(touchPoint.x, flippedY))){
                     pageNumber--;
                     game.setScreen(new MenuScreen(game));
                     return;

@@ -2,7 +2,7 @@ package com.rhythia.game;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Pixmap;
+// import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -12,27 +12,16 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.rhythia.game.screens.MenuScreen;
-import com.rhythia.game.screens.UploadScreen;
-
 
 public class Main extends Game {
     public SpriteBatch batch;
     public Texture solidBackground;
     public BitmapFont font;
 
+    /**
+     * Initializes the game font and spritebatch, and sets the screen to a new Menuscreen
+     */
     @Override
-//    public void create() {
-//        batch = new SpriteBatch();
-//        font = new BitmapFont();
-//
-//        Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
-//
-//        pixmap.setColor(Color.valueOf("#333333"));
-//        pixmap.fill();
-//        solidBackground = new Texture(pixmap);
-//        pixmap.dispose();
-//        this.setScreen(new MenuScreen(this));
-//    }
     public void create() {
         //Platform.startup(() -> {}); 
         batch = new SpriteBatch();
@@ -42,8 +31,8 @@ public class Main extends Game {
         FreeTypeFontGenerator.FreeTypeFontParameter params =
             new FreeTypeFontGenerator.FreeTypeFontParameter();
 
-        params.size = 96;              // ← change this number to adjust size
-        params.color = Color.WHITE;    // text color
+        params.size = 96;
+        params.color = Color.WHITE;
         params.borderWidth = 3f;
         params.borderColor = Color.WHITE;
 
@@ -51,7 +40,6 @@ public class Main extends Game {
         params.magFilter = Texture.TextureFilter.Linear;
         params.gamma = 1.8f;
         params.borderGamma = 1.8f;
-
 
         font = generator.generateFont(params);
         generator.dispose();
@@ -62,11 +50,17 @@ public class Main extends Game {
         this.setScreen(menuScreen);
     }
 
+    /**
+     * Calls Game class's render()
+     */
     @Override
     public void render() {
         super.render();
     }
 
+    /**
+     * Calls Game class's dispose()
+     */
     @Override
     public void dispose() {
         batch.dispose();

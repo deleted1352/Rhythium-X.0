@@ -14,6 +14,13 @@ public class Note {
     public String rating = "MISS";
     public boolean playedSound = false;
 
+    /**
+     * Creates a new note
+     * @param hitTime
+     * @param cell - position the note approaches, displayed in GameplayScreen
+     * @param color - hue
+     * @param s - saturation
+     */
     public Note(float hitTime, int cell, float color, float s) {
         this.hitTime = hitTime;
         this.cell = cell;

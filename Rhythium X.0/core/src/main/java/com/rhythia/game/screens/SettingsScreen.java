@@ -31,14 +31,12 @@ public class SettingsScreen extends ScreenAdapter{
     private int gridX, gridY;
     private String hovering;
     private float timer;
-    //TODO figure out if APCSA classroom computers have mouse sensitivity settings, otherwise add here
-    //TODO design shop/quest screen
     
     /**
      * Creates a setting screen providing options on: difficulty, color patterns
      * Difficulty: time until hit
-     * @param game
-     * @param menuScreen
+     * @param game - game
+     * @param menuScreen - menuscreen to return to
      */
     public SettingsScreen(Main game, MenuScreen menuScreen)
     {
@@ -53,6 +51,9 @@ public class SettingsScreen extends ScreenAdapter{
         initializeColor();
     }
     
+    /**
+     * Initializes grid location, sets hitboxes for difficulty and cursor choices
+     */
     @Override
     public void show()
     {
@@ -68,6 +69,10 @@ public class SettingsScreen extends ScreenAdapter{
         }
     }
 
+    /**
+     * Displays the options, sets color pattern, difficulty, and cursor type based on what the player selects
+     * @param delta - time length for each frame
+     */
     @Override
     public void render(float delta)
     {
@@ -75,24 +80,15 @@ public class SettingsScreen extends ScreenAdapter{
         // Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         if (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.ESCAPE)) {   
-            game.setScreen(new MenuScreen(game));
+            game.setScreen(menuScreen);
             return;
         }
-
-        // Color fontColor = new Color(Color.WHITE);
-        // int patternType = trackCursor(fontColor);
 
         // draw grid for screen
         Rectangle r1 = new Rectangle(gridX - (2 * 0.5f), gridY - (2 * 0.5f), gridLength + 2, gridWidth + 2);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         shapeRenderer.setColor(Color.BLACK); //1,1,1,1
         for (int i = 0; i < 3; i++) {
-            // if (i/2 == patternType) {
-            //     game.font.setColor(fontColor);
-            //     game.font.draw(game.batch, (String) colorPatterns.get(i), gridX + 50, gridY + gridWidth - 150 - 20 * (i));
-            //     game.font.setColor(Color.WHITE);
-            //     continue;
-            // }
             shapeRenderer.rect(gridX - (i * 0.5f), gridY - (i * 0.5f), gridLength + i, gridWidth + i);
         }
         shapeRenderer.end();
@@ -130,7 +126,7 @@ public class SettingsScreen extends ScreenAdapter{
             float flippedY = Gdx.graphics.getHeight() - touchPoint.y;
             
             if (!r1.contains(touchPoint.x, flippedY)) {
-                game.setScreen(new MenuScreen(game));
+                game.setScreen(menuScreen);
                 return;
             }
             
@@ -178,32 +174,10 @@ public class SettingsScreen extends ScreenAdapter{
         game.batch.end();
     }
     
-    // private int trackCursor(Color c) {
-    //     //TODO make sure all patterns are able to be hovered over
-    //     float mx = Gdx.input.getX();
-    //     float my = Gdx.graphics.getHeight() - Gdx.input.getY();
-    //     int i = 1;
-    //     for (Rectangle r : colorBounds) {
-    //         if (r.contains(mx, my)) {
-    //             if (!hovering.contains((String) colorPatterns.get(i-1))) {// if just began hoving
-    //                 hovering = (String) colorPatterns.get(i-1);
-    //                 timer = 0;
-    //             }
-    //             float[] cTheme = (float[]) colorPatterns.get(i);
-    //             int i1 = (int) timer % cTheme.length;
-    //             int i2 = (i1 + 1) % cTheme.length;
-    //             c.set(playColors(timer, cTheme, i1, i2));
-    //             timer += Gdx.graphics.getDeltaTime();
-    //             return i;
-    //         }
-    //         i+=2;// alternates from title to pattern
-    //     }
-    //     hovering = "none";
-    //     c.set(Color.WHITE);
-    //     return colorBounds.size() + 1;
-    // }
-
-     private void initializeColor()
+    /**
+     * Creates several different color themes and adds them to the colorPatterns list
+     */
+    private void initializeColor()
     {
         float[] standard = {325, 0.15f, 296, 0.50f, 273, 0.84f, 273, 1.00f, 241, 0.98f, 180, 1, 145, 0.60f, 55, 0.80f, 48,0.80f};
         //{180, 0.9f, 200, 0.8f, 220, 0.9f, 160, 0.7f}
@@ -246,20 +220,4 @@ public class SettingsScreen extends ScreenAdapter{
             colorBounds.add(new Rectangle(gx + 50, gy + gridWidth - 150 - 20 * (i + 1), 200, 25));
         }
     }
-    
-    // private Color playColors(float deltaTime, float[] pattern, int i1, int i2)
-    // {
-    //     //timer (import)
-    //     //TODO fix playColors in the sense that its not smoothly transitioning after first color
-    //     Color c1 = new Color().fromHsv(pattern[i1], pattern[i1+1], 0.9f);
-    //     Color c2 = new Color().fromHsv(pattern[i2], pattern[i2+1], 0.9f);
-    //     float interTime = 1;
-    //     float deltaTR = (c2.r - c1.r)/interTime;
-    //     float deltaTG = (c2.g - c1.g)/interTime;
-    //     float deltaTB = (c2.b - c1.b)/interTime;
-    //     float deltaCR = (deltaTime - i1/2) * deltaTR;
-    //     float deltaCG = (deltaTime - i1/2) * deltaTG;
-    //     float deltaCB = (deltaTime - i1/2) * deltaTB;
-    //     return new Color(c1.r + deltaCR, c1.g + deltaCG, c1.b + deltaCB, 0.9f);
-    // }
 }
